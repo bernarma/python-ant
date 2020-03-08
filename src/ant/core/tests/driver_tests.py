@@ -36,7 +36,7 @@ class DummyDriver(Driver):
         pass
 
     def _read(self, count):
-        return '\x00' * count
+        return b'\x00' * count
 
     def _write(self, data):
         return len(data)
@@ -74,10 +74,10 @@ class DriverTest(unittest.TestCase):
         self.driver.close()
 
     def test_write(self):
-        self.assertRaises(DriverError, self.driver.write, '\xFF')
+        self.assertRaises(DriverError, self.driver.write, b'\xFF')
         self.driver.open()
         self.assertRaises(DriverError, self.driver.write, '')
-        self.assertEquals(self.driver.write('\xFF' * 10), 10)
+        self.assertEqual(self.driver.write(b'\xFF' * 10), 10)
         self.driver.close()
 
 
