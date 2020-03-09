@@ -36,9 +36,9 @@ class LogReaderTest(unittest.TestCase):
     def setUp(self):
         lw = LogWriter(LOG_LOCATION)
         lw.logOpen()
-        lw.logRead(b'\x01')
-        lw.logWrite(b'\x00')
-        lw.logRead(b'TEST')
+        lw.logRead('\x01')
+        lw.logWrite('\x00')
+        lw.logRead('TEST')
         lw.logClose()
         lw.close()
 
@@ -67,15 +67,15 @@ class LogReaderTest(unittest.TestCase):
         self.assertEqual(t2[0], EVENT_READ)
         self.assertTrue(isinstance(t1[1], int))
         self.assertEqual(len(t2), 3)
-        self.assertEqual(t2[2], b'\x01')
+        self.assertEqual(t2[2], '\x01')
 
         self.assertEqual(t3[0], EVENT_WRITE)
         self.assertTrue(isinstance(t1[1], int))
         self.assertEqual(len(t3), 3)
-        self.assertEqual(t3[2], b'\x00')
+        self.assertEqual(t3[2], '\x00')
 
         self.assertEqual(t4[0], EVENT_READ)
-        self.assertEqual(t4[2], b'TEST')
+        self.assertEqual(t4[2], 'TEST')
 
         self.assertEqual(t5[0], EVENT_CLOSE)
         self.assertTrue(isinstance(t1[1], int))

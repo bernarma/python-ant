@@ -25,6 +25,6 @@
 
 # import unittest
 
-from ant.core.event import *
+# from ant.core.event import *
 
 # TODO: How exactly do you properly test threaded code?

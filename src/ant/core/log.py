@@ -44,10 +44,10 @@ class LogReader(object):
             self.fd.close()
 
     def open(self, filename):
-        if self.is_open == True:
+        if self.is_open is True:
             self.close()
 
-        self.fd = open(filename, 'r')
+        self.fd = open(filename, 'rb')
         self.is_open = True
         self.unpacker = msgpack.Unpacker()
 
@@ -56,7 +56,7 @@ class LogReader(object):
         self.fd.close()
 
         header = self.unpacker.unpack()
-        if len(header) != 2 or header[0] != 'ANT-LOG' or header[1] != 0x01:
+        if len(header) != 2 or header[0] != b'ANT-LOG' or header[1] != 0x01:
             raise IOError('Could not open log file (unknown format).')
 
     def close(self):
@@ -67,7 +67,7 @@ class LogReader(object):
     def read(self):
         try:
             return self.unpacker.unpack()
-        except StopIteration:
+        except msgpack.exceptions.UnpackException:
             return None
 
 
@@ -83,17 +83,17 @@ class LogWriter(object):
 
     def open(self, filename=''):
         if filename == '':
-            filename = datetime.datetime.now().isoformat() + '.ant'
+            filename = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.ant'
         self.filename = filename
 
-        if self.is_open == True:
+        if self.is_open is True:
             self.close()
 
-        self.fd = open(filename, 'w')
+        self.fd = open(filename, 'wb')
         self.is_open = True
         self.packer = msgpack.Packer()
 
-        header = ['ANT-LOG', 0x01]  # [MAGIC, VERSION]
+        header = [b'ANT-LOG', 0x01]  # [MAGIC, VERSION]
         self.fd.write(self.packer.pack(header))
 
     def close(self):

@@ -26,6 +26,7 @@
 import unittest
 
 from ant.core.message import *
+from ant.core.constants import MESSAGE_SYSTEM_RESET, MESSAGE_CHANNEL_ASSIGN
 
 
 class MessageTest(unittest.TestCase):
@@ -310,6 +311,15 @@ class ChannelStatusMessageTest(unittest.TestCase):
         self.message.setChannelNumber(0x01)
         self.message.setStatus(0x02)
         self.assertEqual(self.message.getPayload(), b'\x01\x02')
+
+
+class StartupMessageTest(unittest.TestCase):
+    def setUp(self):
+        self.message = StartupMessage()
+
+    def test_payload(self):
+        self.message.setPayload(b'\x20')
+        self.assertEqual(self.message.getPayload(), b'\x20')
 
 
 class VersionMessageTest(unittest.TestCase):

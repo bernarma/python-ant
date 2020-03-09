@@ -40,7 +40,7 @@ class Message(object):
     def setPayload(self, payload):
         if len(payload) > 9:
             raise MessageError(
-                  'Could not set payload (payload too long).')
+                'Could not set payload (payload too long).')
 
         self.payload = [b'%c' % i for i in payload]
 
@@ -122,6 +122,8 @@ class Message(object):
             msg = NetworkKeyMessage()
         elif self.type_ == MESSAGE_TX_POWER:
             msg = TXPowerMessage()
+        elif self.type_ == MESSAGE_STARTUP:
+            msg = StartupMessage()
         elif self.type_ == MESSAGE_SYSTEM_RESET:
             msg = SystemResetMessage()
         elif self.type_ == MESSAGE_CHANNEL_OPEN:
@@ -148,7 +150,7 @@ class Message(object):
             msg = SerialNumberMessage()
         else:
             raise MessageError('Could not find message handler '
-                               '(unknown message type).')
+                               f'(unknown message type - {self.type_}).')
 
         msg.setPayload(self.getPayload())
         return msg
@@ -174,7 +176,7 @@ class ChannelMessage(Message):
 class ChannelUnassignMessage(ChannelMessage):
     def __init__(self, number=0x00):
         ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_UNASSIGN,
-                         number=number)
+                                number=number)
 
 
 class ChannelAssignMessage(ChannelMessage):
@@ -308,6 +310,11 @@ class TXPowerMessage(Message):
 
 # Control messages
 class SystemResetMessage(Message):
+    def __init__(self):
+        Message.__init__(self, type_=MESSAGE_SYSTEM_RESET, payload=b'\x00')
+
+
+class StartupMessage(Message):
     def __init__(self):
         Message.__init__(self, type_=MESSAGE_SYSTEM_RESET, payload=b'\x00')
 

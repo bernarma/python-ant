@@ -23,7 +23,7 @@
 #
 ##############################################################################
 
-import _thread
+from array import array
 
 # USB1 driver uses a USB<->Serial bridge
 import serial
@@ -33,10 +33,10 @@ import usb.util
 
 from ant.core.exceptions import DriverError
 
-from array import *
+import _thread
 
 
-class Driver(object):
+class Driver():
     _lock = _thread.allocate_lock()
 
     def __init__(self, device, log=None, debug=False):
@@ -193,24 +193,24 @@ class USB2Driver(Driver):
         interface_number = cfg[(0, 0)].bInterfaceNumber
         alternate_setting = usb.control.get_interface(dev, interface_number)
         intf = usb.util.find_descriptor(
-            cfg, bInterfaceNumber = interface_number,
-            bAlternateSetting = alternate_setting
+            cfg, bInterfaceNumber=interface_number,
+            bAlternateSetting=alternate_setting
         )
         usb.util.claim_interface(dev, interface_number)
         ep_out = usb.util.find_descriptor(
             intf,
-            custom_match = \
-            lambda e: \
-                usb.util.endpoint_direction(e.bEndpointAddress) == \
-                usb.util.ENDPOINT_OUT
+            custom_match=\
+                lambda e: \
+                    usb.util.endpoint_direction(e.bEndpointAddress) == \
+                    usb.util.ENDPOINT_OUT
         )
         assert ep_out is not None
         ep_in = usb.util.find_descriptor(
             intf,
-            custom_match = \
-            lambda e: \
-                usb.util.endpoint_direction(e.bEndpointAddress) == \
-                usb.util.ENDPOINT_IN
+            custom_match=\
+                lambda e: \
+                    usb.util.endpoint_direction(e.bEndpointAddress) == \
+                    usb.util.ENDPOINT_IN
         )
         assert ep_in is not None
         self._ep_out = ep_out

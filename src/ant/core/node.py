@@ -34,7 +34,7 @@ from ant.core import event
 
 
 class NetworkKey(object):
-    def __init__(self, name=None, key='\x00' * 8):
+    def __init__(self, name=None, key=b'\x00' * 8):
         self.key = key
         if name:
             self.name = name

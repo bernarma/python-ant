@@ -15,7 +15,7 @@ from ant.core.constants import *
 
 from config import *
 
-NETKEY = '\xB9\xA5\x21\xFB\xBD\x72\xC3\x45'
+NETKEY = b'\xB9\xA5\x21\xFB\xBD\x72\xC3\x45'
 
 # A run-the-mill event listener
 class HRMListener(event.EventCallback):

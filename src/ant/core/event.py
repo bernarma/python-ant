@@ -31,12 +31,11 @@
 import _thread
 import time
 
-MAX_ACK_QUEUE = 25
-MAX_MSG_QUEUE = 25
-
-from ant.core.constants import *
 from ant.core.message import Message, ChannelEventMessage
 from ant.core.exceptions import MessageError
+
+MAX_ACK_QUEUE = 25
+MAX_MSG_QUEUE = 25
 
 
 def ProcessBuffer(buffer_):
@@ -50,8 +49,10 @@ def ProcessBuffer(buffer_):
             messages.append(msg)
         except MessageError as e:
             if e.internal == "CHECKSUM":
-                buffer_ = buffer_[ord(buffer_[1]) + 4:]
+                buffer_ = buffer_[buffer_[1] + 4:]
             else:
+                # any error not related to checksum we should exit
+                # could be incomplete message that has not yet been fully received
                 break
 
     return (buffer_, messages,)
@@ -73,6 +74,7 @@ def EventPump(evm):
         buffer_ += evm.driver.read(20)
         if len(buffer_) == 0:
             continue
+
         buffer_, messages = ProcessBuffer(buffer_)
 
         evm.callbacks_lock.acquire()
@@ -80,7 +82,7 @@ def EventPump(evm):
             for callback in evm.callbacks:
                 try:
                     callback.process(message)
-                except Exception as e:
+                except Exception:
                     pass
 
         evm.callbacks_lock.release()
@@ -92,7 +94,7 @@ def EventPump(evm):
     evm.pump_lock.release()
 
 
-class EventCallback(object):
+class EventCallback():
     def process(self, msg):
         pass
 
@@ -122,7 +124,7 @@ class MsgCallback(EventCallback):
         self.evm.msg_lock.release()
 
 
-class EventMachine(object):
+class EventMachine():
     callbacks_lock = _thread.allocate_lock()
     running_lock = _thread.allocate_lock()
     pump_lock = _thread.allocate_lock()
