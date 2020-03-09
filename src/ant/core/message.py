@@ -147,7 +147,7 @@ class Message(object):
         elif self.type_ == MESSAGE_SERIAL_NUMBER:
             msg = SerialNumberMessage()
         else:
-            raise MessageError('Could not find message handler ' \
+            raise MessageError('Could not find message handler '
                                '(unknown message type).')
 
         msg.setPayload(self.getPayload())
@@ -164,8 +164,8 @@ class ChannelMessage(Message):
 
     def setChannelNumber(self, number):
         if (number > 0xFF) or (number < 0x00):
-            raise MessageError('Could not set channel number ' \
-                                   '(out of range).')
+            raise MessageError('Could not set channel number '
+                               '(out of range).')
 
         self.payload[0] = bytes([number])
 
@@ -377,8 +377,8 @@ class ChannelEventMessage(ChannelMessage):
 
     def setMessageID(self, message_id):
         if (message_id > 0xFF) or (message_id < 0x00):
-            raise MessageError('Could not set message ID ' \
-                                   '(out of range).')
+            raise MessageError('Could not set message ID '
+                               '(out of range).')
 
         self.payload[1] = bytes([message_id])
 
@@ -387,8 +387,8 @@ class ChannelEventMessage(ChannelMessage):
 
     def setMessageCode(self, message_code):
         if (message_code > 0xFF) or (message_code < 0x00):
-            raise MessageError('Could not set message code ' \
-                                   '(out of range).')
+            raise MessageError('Could not set message code '
+                               '(out of range).')
 
         self.payload[2] = bytes([message_code])
 
@@ -405,8 +405,8 @@ class ChannelStatusMessage(ChannelMessage):
 
     def setStatus(self, status):
         if (status > 0xFF) or (status < 0x00):
-            raise MessageError('Could not set channel status ' \
-                                   '(out of range).')
+            raise MessageError('Could not set channel status '
+                               '(out of range).')
 
         self.payload[1] = bytes([status])
 
@@ -421,7 +421,7 @@ class VersionMessage(Message):
 
     def setVersion(self, version):
         if (len(version) != 9):
-            raise MessageError('Could not set ANT version ' \
+            raise MessageError('Could not set ANT version '
                                '(expected 9 bytes).')
 
         self.setPayload(version)
@@ -455,36 +455,36 @@ class CapabilitiesMessage(Message):
 
     def setMaxChannels(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set max channels ' \
-                                   '(out of range).')
+            raise MessageError('Could not set max channels '
+                               '(out of range).')
 
         self.payload[0] = bytes([num])
 
     def setMaxNetworks(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set max networks ' \
-                                   '(out of range).')
+            raise MessageError('Could not set max networks '
+                               '(out of range).')
 
         self.payload[1] = bytes([num])
 
     def setStdOptions(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set std options ' \
-                                   '(out of range).')
+            raise MessageError('Could not set std options '
+                               '(out of range).')
 
         self.payload[2] = bytes([num])
 
     def setAdvOptions(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set adv options ' \
-                                   '(out of range).')
+            raise MessageError('Could not set adv options '
+                               '(out of range).')
 
         self.payload[3] = bytes([num])
 
     def setAdvOptions2(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set adv options 2 ' \
-                                   '(out of range).')
+            raise MessageError('Could not set adv options 2 '
+                               '(out of range).')
 
         if len(self.payload) == 4:
             self.payload.append(b'\x00')
@@ -501,7 +501,7 @@ class SerialNumberMessage(Message):
 
     def setSerialNumber(self, serial):
         if (len(serial) != 4):
-            raise MessageError('Could not set serial number ' \
+            raise MessageError('Could not set serial number '
                                '(expected 4 bytes).')
 
         self.setPayload(serial)

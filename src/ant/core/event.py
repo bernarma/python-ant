@@ -28,11 +28,11 @@
 # don't-fix-it-if-it-ain't-broken kind of threaded code ahead.
 #
 
-MAX_ACK_QUEUE = 25
-MAX_MSG_QUEUE = 25
-
 import _thread
 import time
+
+MAX_ACK_QUEUE = 25
+MAX_MSG_QUEUE = 25
 
 from ant.core.constants import *
 from ant.core.message import Message, ChannelEventMessage
@@ -63,7 +63,7 @@ def EventPump(evm):
     evm.pump_lock.release()
 
     go = True
-    buffer_ = ''
+    buffer_ = b''
     while go:
         evm.running_lock.acquire()
         if not evm.running:

@@ -129,7 +129,7 @@ class Channel(event.EventCallback):
     def process(self, msg):
         self.cb_lock.acquire()
         if isinstance(msg, message.ChannelMessage) and \
-        msg.getChannelNumber() == self.number:
+           msg.getChannelNumber() == self.number:
             for callback in self.cb:
                 try:
                     callback.process(msg)

@@ -130,7 +130,7 @@ class Driver(object):
         while data:
             row = data[:length]
             data = data[length:]
-            hex_data = ['%02X' % ord(byte) for byte in row]
+            hex_data = ['%02X' % byte for byte in row]
             print('%04X' % line, ' '.join(hex_data))
 
         print('')
@@ -183,18 +183,18 @@ class USB1Driver(Driver):
 
 class USB2Driver(Driver):
     def _open(self):
-        # Most of this is straight from the PyUSB example documentation		
+        # Most of this is straight from the PyUSB example documentation
         dev = usb.core.find(idVendor=0x0fcf, idProduct=0x1008)
 
         if dev is None:
             raise DriverError('Could not open device (not found)')
         dev.set_configuration()
         cfg = dev.get_active_configuration()
-        interface_number = cfg[(0,0)].bInterfaceNumber
+        interface_number = cfg[(0, 0)].bInterfaceNumber
         alternate_setting = usb.control.get_interface(dev, interface_number)
         intf = usb.util.find_descriptor(
             cfg, bInterfaceNumber = interface_number,
-            AlternateSetting = alternate_setting
+            bAlternateSetting = alternate_setting
         )
         usb.util.claim_interface(dev, interface_number)
         ep_out = usb.util.find_descriptor(

@@ -23,11 +23,13 @@
 #
 ##############################################################################
 
-LOG_LOCATION = '/tmp/python-ant.logtest.ant'
-
+import os
+import tempfile
 import unittest
-
 from ant.core.log import *
+
+LOG_LOCATION = ''.join([tempfile.gettempdir(), os.path.sep,
+                        'python-ant.logtest.ant'])
 
 
 class LogReaderTest(unittest.TestCase):
@@ -36,7 +38,7 @@ class LogReaderTest(unittest.TestCase):
         lw.logOpen()
         lw.logRead(b'\x01')
         lw.logWrite(b'\x00')
-        lw.logRead('TEST')
+        lw.logRead(b'TEST')
         lw.logClose()
         lw.close()
 
@@ -73,7 +75,7 @@ class LogReaderTest(unittest.TestCase):
         self.assertEqual(t3[2], b'\x00')
 
         self.assertEqual(t4[0], EVENT_READ)
-        self.assertEqual(t4[2], 'TEST')
+        self.assertEqual(t4[2], b'TEST')
 
         self.assertEqual(t5[0], EVENT_CLOSE)
         self.assertTrue(isinstance(t1[1], int))

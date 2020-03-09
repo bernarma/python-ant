@@ -215,7 +215,7 @@ class NetworkKeyMessageTest(unittest.TestCase):
         self.message.setNumber(0x01)
         self.message.setKey(b'\x02\x03\x04\x05\x06\x07\x08\x09')
         self.assertEqual(self.message.getPayload(),
-                          b'\x01\x02\x03\x04\x05\x06\x07\x08\x09')
+                         b'\x01\x02\x03\x04\x05\x06\x07\x08\x09')
 
 
 class TXPowerMessageTest(unittest.TestCase):
