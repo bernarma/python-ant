@@ -31,8 +31,8 @@
 import _thread
 import time
 
-from ant.core.message import Message, ChannelEventMessage
-from ant.core.exceptions import MessageError
+import ant.core.message as antmsg
+import ant.core.exceptions as antex
 
 MAX_ACK_QUEUE = 25
 MAX_MSG_QUEUE = 25
@@ -42,12 +42,12 @@ def ProcessBuffer(buffer_):
     messages = []
 
     while True:
-        hf = Message()
+        hf = antmsg.Message()
         try:
             msg = hf.getHandler(buffer_)
             buffer_ = buffer_[len(msg.getPayload()) + 4:]
             messages.append(msg)
-        except MessageError as e:
+        except antex.MessageError as e:
             if e.internal == "CHECKSUM":
                 buffer_ = buffer_[buffer_[1] + 4:]
             else:
@@ -104,7 +104,7 @@ class AckCallback(EventCallback):
         self.evm = evm
 
     def process(self, msg):
-        if isinstance(msg, ChannelEventMessage):
+        if isinstance(msg, antmsg.ChannelEventMessage):
             self.evm.ack_lock.acquire()
             self.evm.ack.append(msg)
             if len(self.evm.ack) > MAX_ACK_QUEUE:

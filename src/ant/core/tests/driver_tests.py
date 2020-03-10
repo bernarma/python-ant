@@ -25,10 +25,11 @@
 
 import unittest
 
-from ant.core.driver import *
+import ant.core.driver as antdrv
+import ant.core.exceptions as antex
 
 
-class DummyDriver(Driver):
+class DummyDriver(antdrv.Driver):
     def _open(self):
         pass
 
@@ -58,7 +59,7 @@ class DriverTest(unittest.TestCase):
 
     def test_open(self):
         self.driver.open()
-        self.assertRaises(DriverError, self.driver.open)
+        self.assertRaises(antex.DriverError, self.driver.open)
         self.driver.close()
 
     def test_close(self):
@@ -66,17 +67,17 @@ class DriverTest(unittest.TestCase):
 
     def test_read(self):
         self.assertFalse(self.driver.isOpen())
-        self.assertRaises(DriverError, self.driver.read, 1)
+        self.assertRaises(antex.DriverError, self.driver.read, 1)
         self.driver.open()
         self.assertEqual(len(self.driver.read(5)), 5)
-        self.assertRaises(DriverError, self.driver.read, -1)
-        self.assertRaises(DriverError, self.driver.read, 0)
+        self.assertRaises(antex.DriverError, self.driver.read, -1)
+        self.assertRaises(antex.DriverError, self.driver.read, 0)
         self.driver.close()
 
     def test_write(self):
-        self.assertRaises(DriverError, self.driver.write, b'\xFF')
+        self.assertRaises(antex.DriverError, self.driver.write, b'\xFF')
         self.driver.open()
-        self.assertRaises(DriverError, self.driver.write, '')
+        self.assertRaises(antex.DriverError, self.driver.write, b'')
         self.assertEqual(self.driver.write(b'\xFF' * 10), 10)
         self.driver.close()
 

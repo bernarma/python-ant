@@ -34,7 +34,7 @@ EVENT_READ = 0x03
 EVENT_WRITE = 0x04
 
 
-class LogReader(object):
+class LogReader():
     def __init__(self, filename):
         self.is_open = False
         self.open(filename)
@@ -71,7 +71,7 @@ class LogReader(object):
             return None
 
 
-class LogWriter(object):
+class LogWriter():
     def __init__(self, filename=''):
         self.packer = msgpack.Packer()
         self.is_open = False

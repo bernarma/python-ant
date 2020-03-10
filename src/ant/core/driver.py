@@ -24,6 +24,7 @@
 ##############################################################################
 
 from array import array
+from abc import ABC, abstractmethod
 
 # USB1 driver uses a USB<->Serial bridge
 import serial
@@ -31,12 +32,12 @@ import serial
 import usb.core
 import usb.util
 
-from ant.core.exceptions import DriverError
+import ant.core.exceptions as antex
 
 import _thread
 
 
-class Driver():
+class Driver(ABC):
     _lock = _thread.allocate_lock()
 
     def __init__(self, device, log=None, debug=False):
@@ -56,7 +57,7 @@ class Driver():
 
         try:
             if self.is_open:
-                raise DriverError("Could not open device (already open).")
+                raise antex.DriverError("Could not open device (already open).")
 
             self._open()
             self.is_open = True
@@ -70,7 +71,7 @@ class Driver():
 
         try:
             if not self.is_open:
-                raise DriverError("Could not close device (not open).")
+                raise antex.DriverError("Could not close device (not open).")
 
             self._close()
             self.is_open = False
@@ -84,9 +85,9 @@ class Driver():
 
         try:
             if not self.is_open:
-                raise DriverError("Could not read from device (not open).")
+                raise antex.DriverError("Could not read from device (not open).")
             if count <= 0:
-                raise DriverError("Could not read from device (zero request).")
+                raise antex.DriverError("Could not read from device (zero request).")
 
             data = self._read(count)
             if self.log:
@@ -104,9 +105,9 @@ class Driver():
 
         try:
             if not self.is_open:
-                raise DriverError("Could not write to device (not open).")
+                raise antex.DriverError("Could not write to device (not open).")
             if len(data) <= 0:
-                raise DriverError("Could not write to device (no data).")
+                raise antex.DriverError("Could not write to device (no data).")
 
             if self.debug:
                 self._dump(data, 'WRITE')
@@ -135,17 +136,21 @@ class Driver():
 
         print('')
 
+    @abstractmethod
     def _open(self):
-        raise DriverError("Not Implemented")
+        pass
 
+    @abstractmethod
     def _close(self):
-        raise DriverError("Not Implemented")
+        pass
 
+    @abstractmethod
     def _read(self, count):
-        raise DriverError("Not Implemented")
+        pass
 
+    @abstractmethod
     def _write(self, data):
-        raise DriverError("Not Implemented")
+        pass
 
 
 class USB1Driver(Driver):
@@ -157,10 +162,10 @@ class USB1Driver(Driver):
         try:
             dev = serial.Serial(self.device, self.baud)
         except serial.SerialException as e:
-            raise DriverError(str(e))
+            raise antex.DriverError(str(e))
 
         if not dev.isOpen():
-            raise DriverError('Could not open device')
+            raise antex.DriverError('Could not open device')
 
         self._serial = dev
         self._serial.timeout = 0.01
@@ -176,7 +181,7 @@ class USB1Driver(Driver):
             count = self._serial.write(data)
             self._serial.flush()
         except serial.SerialTimeoutException as e:
-            raise DriverError(str(e))
+            raise antex.DriverError(str(e))
 
         return count
 
@@ -187,7 +192,7 @@ class USB2Driver(Driver):
         dev = usb.core.find(idVendor=0x0fcf, idProduct=0x1008)
 
         if dev is None:
-            raise DriverError('Could not open device (not found)')
+            raise antex.DriverError('Could not open device (not found)')
         dev.set_configuration()
         cfg = dev.get_active_configuration()
         interface_number = cfg[(0, 0)].bInterfaceNumber

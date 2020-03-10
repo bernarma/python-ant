@@ -25,11 +25,11 @@
 
 import struct
 
-from ant.core.exceptions import MessageError
-from ant.core.constants import *
+import ant.core.exceptions as antex
+import ant.core.constants as msgtypes
 
 
-class Message(object):
+class Message():
     def __init__(self, type_=0x00, payload=b''):
         self.setType(type_)
         self.setPayload(payload)
@@ -39,7 +39,7 @@ class Message(object):
 
     def setPayload(self, payload):
         if len(payload) > 9:
-            raise MessageError(
+            raise antex.MessageError(
                 'Could not set payload (payload too long).')
 
         self.payload = [b'%c' % i for i in payload]
@@ -49,7 +49,7 @@ class Message(object):
 
     def setType(self, type_):
         if (type_ > 0xFF) or (type_ < 0x00):
-            raise MessageError('Could not set type (type out of range).')
+            raise antex.MessageError('Could not set type (type out of range).')
 
         self.type_ = type_
 
@@ -58,7 +58,7 @@ class Message(object):
         data += bytes([self.getType()])
         data += self.getPayload()
 
-        checksum = MESSAGE_TX_SYNC
+        checksum = msgtypes.MESSAGE_TX_SYNC
         for byte in data:
             checksum = (checksum ^ byte) % 0xFF
 
@@ -69,7 +69,7 @@ class Message(object):
 
     def encode(self):
         raw = struct.pack('BBB',
-                          MESSAGE_TX_SYNC,
+                          msgtypes.MESSAGE_TX_SYNC,
                           len(self.getPayload()),
                           self.getType())
         raw += self.getPayload()
@@ -79,23 +79,23 @@ class Message(object):
 
     def decode(self, raw):
         if len(raw) < 5:
-            raise MessageError('Could not decode (message is incomplete).')
+            raise antex.MessageError('Could not decode (message is incomplete).')
 
         sync, length, type_ = struct.unpack('BBB', raw[:3])
 
-        if sync != MESSAGE_TX_SYNC:
-            raise MessageError('Could not decode (expected TX sync).')
+        if sync != msgtypes.MESSAGE_TX_SYNC:
+            raise antex.MessageError('Could not decode (expected TX sync).')
         if length > 9:
-            raise MessageError('Could not decode (payload too long).')
+            raise antex.MessageError('Could not decode (payload too long).')
         if len(raw) < (length + 4):
-            raise MessageError('Could not decode (message is incomplete).')
+            raise antex.MessageError('Could not decode (message is incomplete).')
 
         self.setType(type_)
         self.setPayload(raw[3:length + 3])
 
         if self.getChecksum() != raw[length + 3]:
-            raise MessageError('Could not decode (bad checksum).',
-                               internal='CHECKSUM')
+            raise antex.MessageError('Could not decode (bad checksum).',
+                                     internal='CHECKSUM')
 
         return self.getSize()
 
@@ -104,53 +104,53 @@ class Message(object):
             self.decode(raw)
 
         msg = None
-        if self.type_ == MESSAGE_CHANNEL_UNASSIGN:
+        if self.type_ == msgtypes.MESSAGE_CHANNEL_UNASSIGN:
             msg = ChannelUnassignMessage()
-        elif self.type_ == MESSAGE_CHANNEL_ASSIGN:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_ASSIGN:
             msg = ChannelAssignMessage()
-        elif self.type_ == MESSAGE_CHANNEL_ID:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_ID:
             msg = ChannelIDMessage()
-        elif self.type_ == MESSAGE_CHANNEL_PERIOD:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_PERIOD:
             msg = ChannelPeriodMessage()
-        elif self.type_ == MESSAGE_CHANNEL_SEARCH_TIMEOUT:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_SEARCH_TIMEOUT:
             msg = ChannelSearchTimeoutMessage()
-        elif self.type_ == MESSAGE_CHANNEL_FREQUENCY:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_FREQUENCY:
             msg = ChannelFrequencyMessage()
-        elif self.type_ == MESSAGE_CHANNEL_TX_POWER:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_TX_POWER:
             msg = ChannelTXPowerMessage()
-        elif self.type_ == MESSAGE_NETWORK_KEY:
+        elif self.type_ == msgtypes.MESSAGE_NETWORK_KEY:
             msg = NetworkKeyMessage()
-        elif self.type_ == MESSAGE_TX_POWER:
+        elif self.type_ == msgtypes.MESSAGE_TX_POWER:
             msg = TXPowerMessage()
-        elif self.type_ == MESSAGE_STARTUP:
+        elif self.type_ == msgtypes.MESSAGE_STARTUP:
             msg = StartupMessage()
-        elif self.type_ == MESSAGE_SYSTEM_RESET:
+        elif self.type_ == msgtypes.MESSAGE_SYSTEM_RESET:
             msg = SystemResetMessage()
-        elif self.type_ == MESSAGE_CHANNEL_OPEN:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_OPEN:
             msg = ChannelOpenMessage()
-        elif self.type_ == MESSAGE_CHANNEL_CLOSE:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_CLOSE:
             msg = ChannelCloseMessage()
-        elif self.type_ == MESSAGE_CHANNEL_REQUEST:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_REQUEST:
             msg = ChannelRequestMessage()
-        elif self.type_ == MESSAGE_CHANNEL_BROADCAST_DATA:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_BROADCAST_DATA:
             msg = ChannelBroadcastDataMessage()
-        elif self.type_ == MESSAGE_CHANNEL_ACKNOWLEDGED_DATA:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_ACKNOWLEDGED_DATA:
             msg = ChannelAcknowledgedDataMessage()
-        elif self.type_ == MESSAGE_CHANNEL_BURST_DATA:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_BURST_DATA:
             msg = ChannelBurstDataMessage()
-        elif self.type_ == MESSAGE_CHANNEL_EVENT:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_EVENT:
             msg = ChannelEventMessage()
-        elif self.type_ == MESSAGE_CHANNEL_STATUS:
+        elif self.type_ == msgtypes.MESSAGE_CHANNEL_STATUS:
             msg = ChannelStatusMessage()
-        elif self.type_ == MESSAGE_VERSION:
+        elif self.type_ == msgtypes.MESSAGE_VERSION:
             msg = VersionMessage()
-        elif self.type_ == MESSAGE_CAPABILITIES:
+        elif self.type_ == msgtypes.MESSAGE_CAPABILITIES:
             msg = CapabilitiesMessage()
-        elif self.type_ == MESSAGE_SERIAL_NUMBER:
+        elif self.type_ == msgtypes.MESSAGE_SERIAL_NUMBER:
             msg = SerialNumberMessage()
         else:
-            raise MessageError('Could not find message handler '
-                               f'(unknown message type - {self.type_}).')
+            raise antex.MessageError('Could not find message handler '
+                                     f'(unknown message type - {self.type_}).')
 
         msg.setPayload(self.getPayload())
         return msg
@@ -166,8 +166,8 @@ class ChannelMessage(Message):
 
     def setChannelNumber(self, number):
         if (number > 0xFF) or (number < 0x00):
-            raise MessageError('Could not set channel number '
-                               '(out of range).')
+            raise antex.MessageError('Could not set channel number '
+                                     '(out of range).')
 
         self.payload[0] = bytes([number])
 
@@ -175,14 +175,14 @@ class ChannelMessage(Message):
 # Config messages
 class ChannelUnassignMessage(ChannelMessage):
     def __init__(self, number=0x00):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_UNASSIGN,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_UNASSIGN,
                                 number=number)
 
 
 class ChannelAssignMessage(ChannelMessage):
     def __init__(self, number=0x00, type_=0x00, network=0x00):
         payload = struct.pack('BB', type_, network)
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_ASSIGN,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ASSIGN,
                                 payload=payload, number=number)
 
     def getChannelType(self):
@@ -201,7 +201,7 @@ class ChannelAssignMessage(ChannelMessage):
 class ChannelIDMessage(ChannelMessage):
     def __init__(self, number=0x00, device_number=0x0000, device_type=0x00,
                  trans_type=0x00):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_ID,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ID,
                                 payload=b'\x00' * 4, number=number)
         self.setDeviceNumber(device_number)
         self.setDeviceType(device_type)
@@ -228,7 +228,7 @@ class ChannelIDMessage(ChannelMessage):
 
 class ChannelPeriodMessage(ChannelMessage):
     def __init__(self, number=0x00, period=8192):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_PERIOD,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_PERIOD,
                                 payload=b'\x00' * 2, number=number)
         self.setChannelPeriod(period)
 
@@ -241,7 +241,7 @@ class ChannelPeriodMessage(ChannelMessage):
 
 class ChannelSearchTimeoutMessage(ChannelMessage):
     def __init__(self, number=0x00, timeout=0xFF):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_SEARCH_TIMEOUT,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_SEARCH_TIMEOUT,
                                 payload=b'\x00', number=number)
         self.setTimeout(timeout)
 
@@ -254,7 +254,7 @@ class ChannelSearchTimeoutMessage(ChannelMessage):
 
 class ChannelFrequencyMessage(ChannelMessage):
     def __init__(self, number=0x00, frequency=66):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_FREQUENCY,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_FREQUENCY,
                                 payload=b'\x00', number=number)
         self.setFrequency(frequency)
 
@@ -267,7 +267,7 @@ class ChannelFrequencyMessage(ChannelMessage):
 
 class ChannelTXPowerMessage(ChannelMessage):
     def __init__(self, number=0x00, power=0x00):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_TX_POWER,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_TX_POWER,
                                 payload=b'\x00', number=number)
 
     def getPower(self):
@@ -279,7 +279,7 @@ class ChannelTXPowerMessage(ChannelMessage):
 
 class NetworkKeyMessage(Message):
     def __init__(self, number=0x00, key=b'\x00' * 8):
-        Message.__init__(self, type_=MESSAGE_NETWORK_KEY, payload=b'\x00' * 9)
+        Message.__init__(self, type_=msgtypes.MESSAGE_NETWORK_KEY, payload=b'\x00' * 9)
         self.setNumber(number)
         self.setKey(key)
 
@@ -298,7 +298,7 @@ class NetworkKeyMessage(Message):
 
 class TXPowerMessage(Message):
     def __init__(self, power=0x00):
-        Message.__init__(self, type_=MESSAGE_TX_POWER, payload=b'\x00\x00')
+        Message.__init__(self, type_=msgtypes.MESSAGE_TX_POWER, payload=b'\x00\x00')
         self.setPower(power)
 
     def getPower(self):
@@ -311,29 +311,29 @@ class TXPowerMessage(Message):
 # Control messages
 class SystemResetMessage(Message):
     def __init__(self):
-        Message.__init__(self, type_=MESSAGE_SYSTEM_RESET, payload=b'\x00')
+        Message.__init__(self, type_=msgtypes.MESSAGE_SYSTEM_RESET, payload=b'\x00')
 
 
 class StartupMessage(Message):
     def __init__(self):
-        Message.__init__(self, type_=MESSAGE_SYSTEM_RESET, payload=b'\x00')
+        Message.__init__(self, type_=msgtypes.MESSAGE_SYSTEM_RESET, payload=b'\x00')
 
 
 class ChannelOpenMessage(ChannelMessage):
     def __init__(self, number=0x00):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_OPEN,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_OPEN,
                                 number=number)
 
 
 class ChannelCloseMessage(ChannelMessage):
     def __init__(self, number=0x00):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_CLOSE,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_CLOSE,
                                 number=number)
 
 
 class ChannelRequestMessage(ChannelMessage):
-    def __init__(self, number=0x00, message_id=MESSAGE_CHANNEL_STATUS):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_REQUEST,
+    def __init__(self, number=0x00, message_id=msgtypes.MESSAGE_CHANNEL_STATUS):
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_REQUEST,
                                 number=number, payload=b'\x00')
         self.setMessageID(message_id)
 
@@ -342,7 +342,7 @@ class ChannelRequestMessage(ChannelMessage):
 
     def setMessageID(self, message_id):
         if (message_id > 0xFF) or (message_id < 0x00):
-            raise MessageError('Could not set message ID ' \
+            raise antex.MessageError('Could not set message ID ' \
                                    '(out of range).')
 
         self.payload[1] = bytes([message_id])
@@ -355,26 +355,26 @@ class RequestMessage(ChannelRequestMessage):
 # Data messages
 class ChannelBroadcastDataMessage(ChannelMessage):
     def __init__(self, number=0x00, data='\x00' * 7):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_BROADCAST_DATA,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_BROADCAST_DATA,
                                 payload=data, number=number)
 
 
 class ChannelAcknowledgedDataMessage(ChannelMessage):
     def __init__(self, number=0x00, data='\x00' * 7):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_ACKNOWLEDGED_DATA,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ACKNOWLEDGED_DATA,
                                 payload=data, number=number)
 
 
 class ChannelBurstDataMessage(ChannelMessage):
     def __init__(self, number=0x00, data='\x00' * 7):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_BURST_DATA,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_BURST_DATA,
                                 payload=data, number=number)
 
 
 # Channel event messages
 class ChannelEventMessage(ChannelMessage):
     def __init__(self, number=0x00, message_id=0x00, message_code=0x00):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_EVENT,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_EVENT,
                                 number=number, payload=b'\x00\x00')
         self.setMessageID(message_id)
         self.setMessageCode(message_code)
@@ -384,8 +384,8 @@ class ChannelEventMessage(ChannelMessage):
 
     def setMessageID(self, message_id):
         if (message_id > 0xFF) or (message_id < 0x00):
-            raise MessageError('Could not set message ID '
-                               '(out of range).')
+            raise antex.MessageError('Could not set message ID '
+                                     '(out of range).')
 
         self.payload[1] = bytes([message_id])
 
@@ -394,8 +394,8 @@ class ChannelEventMessage(ChannelMessage):
 
     def setMessageCode(self, message_code):
         if (message_code > 0xFF) or (message_code < 0x00):
-            raise MessageError('Could not set message code '
-                               '(out of range).')
+            raise antex.MessageError('Could not set message code '
+                                     '(out of range).')
 
         self.payload[2] = bytes([message_code])
 
@@ -403,7 +403,7 @@ class ChannelEventMessage(ChannelMessage):
 # Requested response messages
 class ChannelStatusMessage(ChannelMessage):
     def __init__(self, number=0x00, status=0x00):
-        ChannelMessage.__init__(self, type_=MESSAGE_CHANNEL_STATUS,
+        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_STATUS,
                                 payload=b'\x00', number=number)
         self.setStatus(status)
 
@@ -412,24 +412,24 @@ class ChannelStatusMessage(ChannelMessage):
 
     def setStatus(self, status):
         if (status > 0xFF) or (status < 0x00):
-            raise MessageError('Could not set channel status '
-                               '(out of range).')
+            raise antex.MessageError('Could not set channel status '
+                                     '(out of range).')
 
         self.payload[1] = bytes([status])
 
 
 class VersionMessage(Message):
     def __init__(self, version=b'\x00' * 9):
-        Message.__init__(self, type_=MESSAGE_VERSION, payload=b'\x00' * 9)
+        Message.__init__(self, type_=msgtypes.MESSAGE_VERSION, payload=b'\x00' * 9)
         self.setVersion(version)
 
     def getVersion(self):
         return self.getPayload()
 
     def setVersion(self, version):
-        if (len(version) != 9):
-            raise MessageError('Could not set ANT version '
-                               '(expected 9 bytes).')
+        if len(version) != 9:
+            raise antex.MessageError('Could not set ANT version '
+                                     '(expected 9 bytes).')
 
         self.setPayload(version)
 
@@ -437,7 +437,7 @@ class VersionMessage(Message):
 class CapabilitiesMessage(Message):
     def __init__(self, max_channels=0x00, max_nets=0x00, std_opts=0x00,
                  adv_opts=0x00, adv_opts2=0x00):
-        Message.__init__(self, type_=MESSAGE_CAPABILITIES, payload=b'\x00' * 4)
+        Message.__init__(self, type_=msgtypes.MESSAGE_CAPABILITIES, payload=b'\x00' * 4)
         self.setMaxChannels(max_channels)
         self.setMaxNetworks(max_nets)
         self.setStdOptions(std_opts)
@@ -462,36 +462,36 @@ class CapabilitiesMessage(Message):
 
     def setMaxChannels(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set max channels '
-                               '(out of range).')
+            raise antex.MessageError('Could not set max channels '
+                                     '(out of range).')
 
         self.payload[0] = bytes([num])
 
     def setMaxNetworks(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set max networks '
-                               '(out of range).')
+            raise antex.MessageError('Could not set max networks '
+                                     '(out of range).')
 
         self.payload[1] = bytes([num])
 
     def setStdOptions(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set std options '
-                               '(out of range).')
+            raise antex.MessageError('Could not set std options '
+                                     '(out of range).')
 
         self.payload[2] = bytes([num])
 
     def setAdvOptions(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set adv options '
-                               '(out of range).')
+            raise antex.MessageError('Could not set adv options '
+                                     '(out of range).')
 
         self.payload[3] = bytes([num])
 
     def setAdvOptions2(self, num):
         if (num > 0xFF) or (num < 0x00):
-            raise MessageError('Could not set adv options 2 '
-                               '(out of range).')
+            raise antex.MessageError('Could not set adv options 2 '
+                                     '(out of range).')
 
         if len(self.payload) == 4:
             self.payload.append(b'\x00')
@@ -500,15 +500,15 @@ class CapabilitiesMessage(Message):
 
 class SerialNumberMessage(Message):
     def __init__(self, serial=b'\x00' * 4):
-        Message.__init__(self, type_=MESSAGE_SERIAL_NUMBER)
+        Message.__init__(self, type_=msgtypes.MESSAGE_SERIAL_NUMBER)
         self.setSerialNumber(serial)
 
     def getSerialNumber(self):
         return self.getPayload()
 
     def setSerialNumber(self, serial):
-        if (len(serial) != 4):
-            raise MessageError('Could not set serial number '
-                               '(expected 4 bytes).')
+        if len(serial) != 4:
+            raise antex.MessageError('Could not set serial number '
+                                     '(expected 4 bytes).')
 
         self.setPayload(serial)

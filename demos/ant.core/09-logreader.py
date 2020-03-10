@@ -7,8 +7,6 @@ import sys
 
 from ant.core import log
 
-from config import *
-
 # Open log
 if len(sys.argv) != 2:
     print("Usage: {0} file.ant".format(sys.argv[0]))

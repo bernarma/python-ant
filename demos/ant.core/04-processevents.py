@@ -11,9 +11,9 @@ from ant.core import driver
 from ant.core import node
 from ant.core import event
 from ant.core import message
-from ant.core.constants import *
+from ant.core.constants import CHANNEL_TYPE_TWOWAY_RECEIVE, TIMEOUT_NEVER
 
-from config import *
+import config as antcfg
 
 NETKEY = b'\xB9\xA5\x21\xFB\xBD\x72\xC3\x45'
 
@@ -24,7 +24,7 @@ class HRMListener(event.EventCallback):
             print('Heart Rate:', ord(msg.payload[-1]))
 
 # Initialize
-stick = driver.USB1Driver(SERIAL, log=LOG, debug=DEBUG)
+stick = driver.USB1Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
 antnode = node.Node(stick)
 antnode.start()
 

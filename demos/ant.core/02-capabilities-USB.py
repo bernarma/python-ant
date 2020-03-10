@@ -3,16 +3,13 @@ Interrogate stick for supported capabilities.
 
 """
 
-import sys
-
-from ant.core import driver
-from ant.core import node
-
-from config import *
+import ant.core.driver as antdrv
+import ant.core.node as antnode
+import config as antcfg
 
 # Initialize
-stick = driver.USB2Driver(SERIAL, log=LOG, debug=DEBUG)
-antnode = node.Node(stick)
+stick = antdrv.USB2Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
+antnode = antnode.Node(stick)
 antnode.start()
 
 # Interrogate stick

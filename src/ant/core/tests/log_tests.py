@@ -26,7 +26,7 @@
 import os
 import tempfile
 import unittest
-from ant.core.log import *
+import ant.core.log as log
 
 LOG_LOCATION = ''.join([tempfile.gettempdir(), os.path.sep,
                         'python-ant.logtest.ant'])
@@ -34,15 +34,15 @@ LOG_LOCATION = ''.join([tempfile.gettempdir(), os.path.sep,
 
 class LogReaderTest(unittest.TestCase):
     def setUp(self):
-        lw = LogWriter(LOG_LOCATION)
+        lw = log.LogWriter(LOG_LOCATION)
         lw.logOpen()
-        lw.logRead('\x01')
-        lw.logWrite('\x00')
-        lw.logRead('TEST')
+        lw.logRead(b'\x01')
+        lw.logWrite(b'\x00')
+        lw.logRead(b'TEST')
         lw.logClose()
         lw.close()
 
-        self.log = LogReader(LOG_LOCATION)
+        self.log = log.LogReader(LOG_LOCATION)
 
     def test_open_close(self):
         self.assertTrue(self.log.is_open)
@@ -60,31 +60,31 @@ class LogReaderTest(unittest.TestCase):
 
         self.assertEqual(self.log.read(), None)
 
-        self.assertEqual(t1[0], EVENT_OPEN)
+        self.assertEqual(t1[0], log.EVENT_OPEN)
         self.assertTrue(isinstance(t1[1], int))
         self.assertEqual(len(t1), 2)
 
-        self.assertEqual(t2[0], EVENT_READ)
+        self.assertEqual(t2[0], log.EVENT_READ)
         self.assertTrue(isinstance(t1[1], int))
         self.assertEqual(len(t2), 3)
-        self.assertEqual(t2[2], '\x01')
+        self.assertEqual(t2[2], b'\x01')
 
-        self.assertEqual(t3[0], EVENT_WRITE)
+        self.assertEqual(t3[0], log.EVENT_WRITE)
         self.assertTrue(isinstance(t1[1], int))
         self.assertEqual(len(t3), 3)
-        self.assertEqual(t3[2], '\x00')
+        self.assertEqual(t3[2], b'\x00')
 
-        self.assertEqual(t4[0], EVENT_READ)
-        self.assertEqual(t4[2], 'TEST')
+        self.assertEqual(t4[0], log.EVENT_READ)
+        self.assertEqual(t4[2], b'TEST')
 
-        self.assertEqual(t5[0], EVENT_CLOSE)
+        self.assertEqual(t5[0], log.EVENT_CLOSE)
         self.assertTrue(isinstance(t1[1], int))
         self.assertEqual(len(t5), 2)
 
 
 class LogWriterTest(unittest.TestCase):
     def setUp(self):
-        self.log = LogWriter(LOG_LOCATION)
+        self.log = log.LogWriter(LOG_LOCATION)
 
     def test_open_close(self):
         self.assertTrue(self.log.is_open)

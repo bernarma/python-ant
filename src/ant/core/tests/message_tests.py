@@ -25,31 +25,32 @@
 
 import unittest
 
-from ant.core.message import *
+import ant.core.message as antmsg
+import ant.core.exceptions as antex
 from ant.core.constants import MESSAGE_SYSTEM_RESET, MESSAGE_CHANNEL_ASSIGN
 
 
 class MessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = Message()
+        self.message = antmsg.Message()
 
     def test_get_setPayload(self):
-        self.assertRaises(MessageError, self.message.setPayload,
+        self.assertRaises(antex.MessageError, self.message.setPayload,
                           b'\xFF' * 15)
         self.message.setPayload(b'\x11' * 5)
         self.assertEqual(self.message.getPayload(), b'\x11' * 5)
 
     def test_get_setType(self):
-        self.assertRaises(MessageError, self.message.setType, -1)
-        self.assertRaises(MessageError, self.message.setType, 300)
+        self.assertRaises(antex.MessageError, self.message.setType, -1)
+        self.assertRaises(antex.MessageError, self.message.setType, 300)
         self.message.setType(0x23)
         self.assertEqual(self.message.getType(), 0x23)
 
     def test_getChecksum(self):
-        self.message = Message(type_=MESSAGE_SYSTEM_RESET, payload=b'\x00')
+        self.message = antmsg.Message(type_=MESSAGE_SYSTEM_RESET, payload=b'\x00')
         self.assertEqual(self.message.getChecksum(), 0xEF)
-        self.message = Message(type_=MESSAGE_CHANNEL_ASSIGN,
-                               payload=b'\x00' * 3)
+        self.message = antmsg.Message(type_=MESSAGE_CHANNEL_ASSIGN,
+                                      payload=b'\x00' * 3)
         self.assertEqual(self.message.getChecksum(), 0xE5)
 
     def test_getSize(self):
@@ -57,17 +58,17 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(self.message.getSize(), 11)
 
     def test_encode(self):
-        self.message = Message(type_=MESSAGE_CHANNEL_ASSIGN,
-                               payload=b'\x00' * 3)
+        self.message = antmsg.Message(type_=MESSAGE_CHANNEL_ASSIGN,
+                                      payload=b'\x00' * 3)
         self.assertEqual(self.message.encode(),
                          b'\xA4\x03\x42\x00\x00\x00\xE5')
 
     def test_decode(self):
-        self.assertRaises(MessageError, self.message.decode,
+        self.assertRaises(antex.MessageError, self.message.decode,
                           b'\xA5\x03\x42\x00\x00\x00\xE5')
-        self.assertRaises(MessageError, self.message.decode,
+        self.assertRaises(antex.MessageError, self.message.decode,
                           b'\xA4\x14\x42' + (b'\x00' * 20) + b'\xE5')
-        self.assertRaises(MessageError, self.message.decode,
+        self.assertRaises(antex.MessageError, self.message.decode,
                           b'\xA4\x03\x42\x01\x02\xF3\xE5')
         self.assertEqual(self.message.decode(b'\xA4\x03\x42\x00\x00\x00\xE5'),
                          7)
@@ -77,18 +78,18 @@ class MessageTest(unittest.TestCase):
 
     def test_getHandler(self):
         handler = self.message.getHandler(b'\xA4\x03\x42\x00\x00\x00\xE5')
-        self.assertTrue(isinstance(handler, ChannelAssignMessage))
-        self.assertRaises(MessageError, self.message.getHandler,
+        self.assertTrue(isinstance(handler, antmsg.ChannelAssignMessage))
+        self.assertRaises(antex.MessageError, self.message.getHandler,
                           b'\xA4\x03\xFF\x00\x00\x00\xE5')
-        self.assertRaises(MessageError, self.message.getHandler,
+        self.assertRaises(antex.MessageError, self.message.getHandler,
                           b'\xA4\x03\x42')
-        self.assertRaises(MessageError, self.message.getHandler,
+        self.assertRaises(antex.MessageError, self.message.getHandler,
                           b'\xA4\x05\x42\x00\x00\x00\x00')
 
 
 class ChannelMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelMessage(type_=MESSAGE_SYSTEM_RESET)
+        self.message = antmsg.ChannelMessage(type_=MESSAGE_SYSTEM_RESET)
 
     def test_get_setChannelNumber(self):
         self.assertEqual(self.message.getChannelNumber(), 0)
@@ -103,7 +104,7 @@ class ChannelUnassignMessageTest(unittest.TestCase):
 
 class ChannelAssignMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelAssignMessage()
+        self.message = antmsg.ChannelAssignMessage()
 
     def test_get_setChannelType(self):
         self.message.setChannelType(0x10)
@@ -122,7 +123,7 @@ class ChannelAssignMessageTest(unittest.TestCase):
 
 class ChannelIDMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelIDMessage()
+        self.message = antmsg.ChannelIDMessage()
 
     def test_get_setDeviceNumber(self):
         self.message.setDeviceNumber(0x10FA)
@@ -146,7 +147,7 @@ class ChannelIDMessageTest(unittest.TestCase):
 
 class ChannelPeriodMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelPeriodMessage()
+        self.message = antmsg.ChannelPeriodMessage()
 
     def test_get_setChannelPeriod(self):
         self.message.setChannelPeriod(0x10FA)
@@ -160,7 +161,7 @@ class ChannelPeriodMessageTest(unittest.TestCase):
 
 class ChannelSearchTimeoutMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelSearchTimeoutMessage()
+        self.message = antmsg.ChannelSearchTimeoutMessage()
 
     def test_get_setTimeout(self):
         self.message.setTimeout(0x10)
@@ -174,7 +175,7 @@ class ChannelSearchTimeoutMessageTest(unittest.TestCase):
 
 class ChannelFrequencyMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelFrequencyMessage()
+        self.message = antmsg.ChannelFrequencyMessage()
 
     def test_get_setFrequency(self):
         self.message.setFrequency(22)
@@ -188,7 +189,7 @@ class ChannelFrequencyMessageTest(unittest.TestCase):
 
 class ChannelTXPowerMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelTXPowerMessage()
+        self.message = antmsg.ChannelTXPowerMessage()
 
     def test_get_setPower(self):
         self.message.setPower(0xFA)
@@ -202,7 +203,7 @@ class ChannelTXPowerMessageTest(unittest.TestCase):
 
 class NetworkKeyMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = NetworkKeyMessage()
+        self.message = antmsg.NetworkKeyMessage()
 
     def test_get_setNumber(self):
         self.message.setNumber(0xFA)
@@ -221,7 +222,7 @@ class NetworkKeyMessageTest(unittest.TestCase):
 
 class TXPowerMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = TXPowerMessage()
+        self.message = antmsg.TXPowerMessage()
 
     def test_get_setPower(self):
         self.message.setPower(0xFA)
@@ -249,12 +250,12 @@ class ChannelCloseMessageTest(unittest.TestCase):
 
 class ChannelRequestMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelRequestMessage()
+        self.message = antmsg.ChannelRequestMessage()
 
     def test_get_setMessageID(self):
         self.message.setMessageID(0xFA)
         self.assertEqual(self.message.getMessageID(), 0xFA)
-        self.assertRaises(MessageError, self.message.setMessageID, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setMessageID, 0xFFFF)
 
     def test_payload(self):
         self.message.setChannelNumber(0x01)
@@ -279,17 +280,17 @@ class ChannelBurstDataMessageTest(unittest.TestCase):
 
 class ChannelEventMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelEventMessage()
+        self.message = antmsg.ChannelEventMessage()
 
     def test_get_setMessageID(self):
         self.message.setMessageID(0xFA)
         self.assertEqual(self.message.getMessageID(), 0xFA)
-        self.assertRaises(MessageError, self.message.setMessageID, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setMessageID, 0xFFFF)
 
     def test_get_setMessageCode(self):
         self.message.setMessageCode(0xFA)
         self.assertEqual(self.message.getMessageCode(), 0xFA)
-        self.assertRaises(MessageError, self.message.setMessageCode, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setMessageCode, 0xFFFF)
 
     def test_payload(self):
         self.message.setChannelNumber(0x01)
@@ -300,12 +301,12 @@ class ChannelEventMessageTest(unittest.TestCase):
 
 class ChannelStatusMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = ChannelStatusMessage()
+        self.message = antmsg.ChannelStatusMessage()
 
     def test_get_setStatus(self):
         self.message.setStatus(0xFA)
         self.assertEqual(self.message.getStatus(), 0xFA)
-        self.assertRaises(MessageError, self.message.setStatus, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setStatus, 0xFFFF)
 
     def test_payload(self):
         self.message.setChannelNumber(0x01)
@@ -315,7 +316,7 @@ class ChannelStatusMessageTest(unittest.TestCase):
 
 class StartupMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = StartupMessage()
+        self.message = antmsg.StartupMessage()
 
     def test_payload(self):
         self.message.setPayload(b'\x20')
@@ -324,12 +325,12 @@ class StartupMessageTest(unittest.TestCase):
 
 class VersionMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = VersionMessage()
+        self.message = antmsg.VersionMessage()
 
     def test_get_setVersion(self):
         self.message.setVersion(b'\xAB' * 9)
         self.assertEqual(self.message.getVersion(), b'\xAB' * 9)
-        self.assertRaises(MessageError, self.message.setVersion, '1234')
+        self.assertRaises(antex.MessageError, self.message.setVersion, '1234')
 
     def test_payload(self):
         self.message.setVersion(b'\x01' * 9)
@@ -338,33 +339,33 @@ class VersionMessageTest(unittest.TestCase):
 
 class CapabilitiesMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = CapabilitiesMessage()
+        self.message = antmsg.CapabilitiesMessage()
 
     def test_get_setMaxChannels(self):
         self.message.setMaxChannels(0xFA)
         self.assertEqual(self.message.getMaxChannels(), 0xFA)
-        self.assertRaises(MessageError, self.message.setMaxChannels, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setMaxChannels, 0xFFFF)
 
     def test_get_setMaxNetworks(self):
         self.message.setMaxNetworks(0xFA)
         self.assertEqual(self.message.getMaxNetworks(), 0xFA)
-        self.assertRaises(MessageError, self.message.setMaxNetworks, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setMaxNetworks, 0xFFFF)
 
     def test_get_setStdOptions(self):
         self.message.setStdOptions(0xFA)
         self.assertEqual(self.message.getStdOptions(), 0xFA)
-        self.assertRaises(MessageError, self.message.setStdOptions, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setStdOptions, 0xFFFF)
 
     def test_get_setAdvOptions(self):
         self.message.setAdvOptions(0xFA)
         self.assertEqual(self.message.getAdvOptions(), 0xFA)
-        self.assertRaises(MessageError, self.message.setAdvOptions, 0xFFFF)
+        self.assertRaises(antex.MessageError, self.message.setAdvOptions, 0xFFFF)
 
     def test_get_setAdvOptions2(self):
         self.message.setAdvOptions2(0xFA)
         self.assertEqual(self.message.getAdvOptions2(), 0xFA)
-        self.assertRaises(MessageError, self.message.setAdvOptions2, 0xFFFF)
-        self.message = CapabilitiesMessage(adv_opts2=None)
+        self.assertRaises(antex.MessageError, self.message.setAdvOptions2, 0xFFFF)
+        self.message = antmsg.CapabilitiesMessage(adv_opts2=None)
         self.assertEqual(len(self.message.payload), 4)
 
     def test_payload(self):
@@ -378,12 +379,12 @@ class CapabilitiesMessageTest(unittest.TestCase):
 
 class SerialNumberMessageTest(unittest.TestCase):
     def setUp(self):
-        self.message = SerialNumberMessage()
+        self.message = antmsg.SerialNumberMessage()
 
     def test_get_setSerialNumber(self):
         self.message.setSerialNumber(b'\xFA\xFB\xFC\xFD')
         self.assertEqual(self.message.getSerialNumber(), b'\xFA\xFB\xFC\xFD')
-        self.assertRaises(MessageError, self.message.setSerialNumber,
+        self.assertRaises(antex.MessageError, self.message.setSerialNumber,
                           '\xFF' * 8)
 
     def test_payload(self):

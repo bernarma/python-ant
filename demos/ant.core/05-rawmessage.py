@@ -3,22 +3,21 @@ Do a system reset using raw messages.
 
 """
 
-import sys
 import time
 
-from ant.core import driver
-from ant.core import message
-from ant.core.constants import *
+import ant.core.driver as antdrv
+import ant.core.message as antmsg
+import ant.core.constants as msgtypes
 
-from config import *
+import config as antcfg
 
 # Initialize
-stick = driver.USB1Driver(SERIAL, log=LOG, debug=DEBUG)
+stick = antdrv.USB1Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
 stick.open()
 
 # Prepare system reset message
-msg = message.Message()
-msg.setType(MESSAGE_SYSTEM_RESET)
+msg = antmsg.Message()
+msg.setType(msgtypes.MESSAGE_SYSTEM_RESET)
 msg.setPayload('\x00')
 
 # Send
@@ -28,7 +27,7 @@ stick.write(msg.encode())
 time.sleep(1)
 
 # Alternatively, we could have done this:
-msg = message.SystemResetMessage()
+msg = antmsg.SystemResetMessage()
 stick.write(msg.encode())
 time.sleep(1)
 
