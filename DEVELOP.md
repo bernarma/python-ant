@@ -46,10 +46,10 @@ Release Checklist
  * Run pylint
  * Run importchecker
    % importchecker src
- * Run pep8
-   % pep8 -r src --count --statistics
+ * Run pycodestyle (uses tox.ini for configuration)
+   % pycodestyle src
  * Run test suite and check test coverage
-   % nosetests --with-coverage --cover-inclusive --cover-erase
+   % nosetests --with-coverage --cover-inclusive --cover-erase src\ant\core\tests
  * Freeze dependencies' version numbers in buildout.cfg and setup.py
  * Check bug database for open issues/bugs
  * Build documentation

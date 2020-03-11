@@ -33,8 +33,8 @@ import ant.core.constants as msgtypes
 
 
 class Message():
-    """Represents an ANT message as defined in the ANT Message Protocol Specification.
-    """
+    '''Represents an ANT message as defined in the ANT Message Protocol Specification.
+    '''
 
     def __init__(self, type_=0x00, payload=b''):
         """Initialises the ANT message with an empty payload.
@@ -55,6 +55,8 @@ class Message():
         self.payload = [b'%c' % i for i in payload]
 
     def getType(self):
+        """Returns the type of ANT message.
+        """
         return self.type_
 
     def setType(self, type_):
@@ -82,6 +84,8 @@ class Message():
         return len(self.getPayload()) + 4
 
     def encode(self):
+        """Returns a byte stream representing the ANT message.
+        """
         raw = struct.pack('BBB',
                           msgtypes.MESSAGE_TX_SYNC,
                           len(self.getPayload()),
@@ -92,6 +96,8 @@ class Message():
         return raw
 
     def decode(self, raw):
+        """Decodes a raw sequence of bytes into an ANT message.
+        """
         if len(raw) < 5:
             raise antex.MessageError('Could not decode (message is incomplete).')
 
@@ -114,6 +120,8 @@ class Message():
         return self.getSize()
 
     def getHandler(self, raw=None):
+        """Returns an typed object based on the raw payload.
+        """
         if raw:
             self.decode(raw)
 
@@ -171,6 +179,8 @@ class Message():
 
 
 class ChannelMessage(Message):
+    '''Base class representing messages related to an ANT Channel.
+    '''
     def __init__(self, type_, payload=b'', number=0x00):
         Message.__init__(self, type_, b'\x00' + payload)
         self.setChannelNumber(number)
@@ -187,12 +197,18 @@ class ChannelMessage(Message):
 
 # Config messages
 class ChannelUnassignMessage(ChannelMessage):
+    """Configuration: Unassign Channel (0x41)
+    """
+
     def __init__(self, number=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_UNASSIGN,
                                 number=number)
 
 
 class ChannelAssignMessage(ChannelMessage):
+    """Configuration: Assign Channel (0x42)
+    """
+
     def __init__(self, number=0x00, type_=0x00, network=0x00):
         payload = struct.pack('BB', type_, network)
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ASSIGN,
@@ -212,6 +228,9 @@ class ChannelAssignMessage(ChannelMessage):
 
 
 class ChannelIDMessage(ChannelMessage):
+    """Configuration: Set Channel ID (0x051)
+    """
+
     def __init__(self, number=0x00, device_number=0x0000, device_type=0x00,
                  trans_type=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ID,
@@ -240,6 +259,9 @@ class ChannelIDMessage(ChannelMessage):
 
 
 class ChannelPeriodMessage(ChannelMessage):
+    """Configuration: Channel Messaging Period (0x43)
+    """
+
     def __init__(self, number=0x00, period=8192):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_PERIOD,
                                 payload=b'\x00' * 2, number=number)
@@ -253,6 +275,9 @@ class ChannelPeriodMessage(ChannelMessage):
 
 
 class ChannelSearchTimeoutMessage(ChannelMessage):
+    """Configuration: Channel Search Timeout (0x44)
+    """
+
     def __init__(self, number=0x00, timeout=0xFF):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_SEARCH_TIMEOUT,
                                 payload=b'\x00', number=number)
@@ -266,6 +291,10 @@ class ChannelSearchTimeoutMessage(ChannelMessage):
 
 
 class ChannelFrequencyMessage(ChannelMessage):
+    """Configuration: Channel RF Frequency (0x45)
+
+    """
+
     def __init__(self, number=0x00, frequency=66):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_FREQUENCY,
                                 payload=b'\x00', number=number)
@@ -279,6 +308,7 @@ class ChannelFrequencyMessage(ChannelMessage):
 
 
 class ChannelTXPowerMessage(ChannelMessage):
+    '''Configuration: Set Channel Tx Power (0x60) '''
     def __init__(self, number=0x00, power=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_TX_POWER,
                                 payload=b'\x00', number=number)
@@ -292,6 +322,7 @@ class ChannelTXPowerMessage(ChannelMessage):
 
 
 class NetworkKeyMessage(Message):
+    '''Configuration: Set Network Key (0x46) '''
     def __init__(self, number=0x00, key=b'\x00' * 8):
         Message.__init__(self, type_=msgtypes.MESSAGE_NETWORK_KEY, payload=b'\x00' * 9)
         self.setNumber(number)
@@ -311,6 +342,7 @@ class NetworkKeyMessage(Message):
 
 
 class TXPowerMessage(Message):
+    '''Configuration: Transmit Power (0x47) '''
     def __init__(self, power=0x00):
         Message.__init__(self, type_=msgtypes.MESSAGE_TX_POWER, payload=b'\x00\x00')
         self.setPower(power)
@@ -324,31 +356,26 @@ class TXPowerMessage(Message):
 
 # Control messages
 class SystemResetMessage(Message):
-    """Control Message: Reset System (0x4A)
-    """
-
+    '''Control Message: Reset System (0x4A) '''
     def __init__(self):
         Message.__init__(self, type_=msgtypes.MESSAGE_SYSTEM_RESET, payload=b'\x00')
 
 
 class StartupMessage(Message):
-    """Notification: Start-up Message(0x6F)
-    """
-
+    '''Notification: Start-up Message(0x6F) '''
     def __init__(self):
         Message.__init__(self, type_=msgtypes.MESSAGE_STARTUP, payload=b'\x00')
 
 
 class ChannelOpenMessage(ChannelMessage):
-    """
-    """
-
+    ''' Control: Open Channel (0x4B)'''
     def __init__(self, number=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_OPEN,
                                 number=number)
 
 
 class ChannelCloseMessage(ChannelMessage):
+    ''' Control: Close Channel (0x4C) '''
     def __init__(self, number=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_CLOSE,
                                 number=number)
@@ -376,12 +403,14 @@ class RequestMessage(ChannelRequestMessage):
 
 # Data messages
 class ChannelBroadcastDataMessage(ChannelMessage):
+    '''Data: Broadcast Data (0x4E) '''
     def __init__(self, number=0x00, data='\x00' * 7):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_BROADCAST_DATA,
                                 payload=data, number=number)
 
 
 class ChannelAcknowledgedDataMessage(ChannelMessage):
+    '''Data: Acknowledged Data (0x4F) '''
     def __init__(self, number=0x00, data='\x00' * 7):
         ChannelMessage.__init__(self,
                                 type_=msgtypes.MESSAGE_CHANNEL_ACKNOWLEDGED_DATA,
@@ -389,6 +418,7 @@ class ChannelAcknowledgedDataMessage(ChannelMessage):
 
 
 class ChannelBurstDataMessage(ChannelMessage):
+    '''Data: Burst Data (0x50) '''
     def __init__(self, number=0x00, data='\x00' * 7):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_BURST_DATA,
                                 payload=data, number=number)
@@ -396,6 +426,7 @@ class ChannelBurstDataMessage(ChannelMessage):
 
 # Channel event messages
 class ChannelEventMessage(ChannelMessage):
+    '''Channel Response / Event Messages: Channel Response / Event (0x40)'''
     def __init__(self, number=0x00, message_id=0x00, message_code=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_EVENT,
                                 number=number, payload=b'\x00\x00')
@@ -425,6 +456,7 @@ class ChannelEventMessage(ChannelMessage):
 
 # Requested response messages
 class ChannelStatusMessage(ChannelMessage):
+    '''Requested Response: Channel Status (0x52)'''
     def __init__(self, number=0x00, status=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_STATUS,
                                 payload=b'\x00', number=number)
@@ -442,6 +474,7 @@ class ChannelStatusMessage(ChannelMessage):
 
 
 class VersionMessage(Message):
+    ''' Requested Response: ANT Version (0x3E) '''
     def __init__(self, version=b'\x00' * 9):
         Message.__init__(self, type_=msgtypes.MESSAGE_VERSION,
                          payload=b'\x00' * 9)
@@ -459,6 +492,7 @@ class VersionMessage(Message):
 
 
 class CapabilitiesMessage(Message):
+    ''' Requested Response: Capabilities (0x54) '''
     def __init__(self, max_channels=0x00, max_nets=0x00, std_opts=0x00,
                  adv_opts=0x00, adv_opts2=0x00):
         Message.__init__(self, type_=msgtypes.MESSAGE_CAPABILITIES,
@@ -526,6 +560,7 @@ class CapabilitiesMessage(Message):
 
 
 class SerialNumberMessage(Message):
+    ''' Requested Response: Device Serial Number (0x61) '''
     def __init__(self, serial=b'\x00' * 4):
         Message.__init__(self, type_=msgtypes.MESSAGE_SERIAL_NUMBER)
         self.setSerialNumber(serial)
