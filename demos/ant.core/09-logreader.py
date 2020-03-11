@@ -1,7 +1,4 @@
-"""
-Read an ANT-LOG file.
-
-"""
+'''Read an ANT-LOG file. '''
 
 import sys
 
@@ -33,7 +30,7 @@ while (event != None):
         while data:
             row = data[:length]
             data = data[length:]
-            hex_data = ['%02X' % ord(byte) for byte in row]
+            hex_data = ['%02X' % byte for byte in row]
             print('%04X' % line, ' '.join(hex_data))
 
     print('')

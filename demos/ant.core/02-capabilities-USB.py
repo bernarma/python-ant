@@ -1,14 +1,11 @@
-"""
-Interrogate stick for supported capabilities.
-
-"""
+'''Interrogate stick for supported capabilities. '''
 
 import ant.core.driver as antdrv
 import ant.core.node as antnode
 import config as antcfg
 
 # Initialize
-stick = antdrv.USB2Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
+stick = antdrv.USB2Driver(None, log=antcfg.LOG, debug=antcfg.DEBUG)
 antnode = antnode.Node(stick)
 antnode.start()
 

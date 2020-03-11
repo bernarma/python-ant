@@ -380,14 +380,14 @@ class RequestMessage(ChannelRequestMessage):
 # Data messages
 class ChannelBroadcastDataMessage(ChannelMessage):
     '''Data: Broadcast Data (0x4E) '''
-    def __init__(self, number=0x00, data='\x00' * 7):
+    def __init__(self, number=0x00, data=b'\x00' * 7):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_BROADCAST_DATA,
                                 payload=data, number=number)
 
 
 class ChannelAcknowledgedDataMessage(ChannelMessage):
     '''Data: Acknowledged Data (0x4F) '''
-    def __init__(self, number=0x00, data='\x00' * 7):
+    def __init__(self, number=0x00, data=b'\x00' * 7):
         ChannelMessage.__init__(self,
                                 type_=msgtypes.MESSAGE_CHANNEL_ACKNOWLEDGED_DATA,
                                 payload=data, number=number)
@@ -395,7 +395,7 @@ class ChannelAcknowledgedDataMessage(ChannelMessage):
 
 class ChannelBurstDataMessage(ChannelMessage):
     '''Data: Burst Data (0x50) '''
-    def __init__(self, number=0x00, data='\x00' * 7):
+    def __init__(self, number=0x00, data=b'\x00' * 7):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_BURST_DATA,
                                 payload=data, number=number)
 
