@@ -1,7 +1,4 @@
-"""
-Interrogate stick for supported capabilities.
-
-"""
+'''Interrogate stick for supported capabilities. '''
 
 import ant.core.driver as antdrv
 import ant.core.node as antnode

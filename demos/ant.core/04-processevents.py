@@ -1,8 +1,7 @@
-"""
+'''
 Extending on demo-03, implements an event callback we can use to process the
 incoming data.
-
-"""
+'''
 
 import time
 

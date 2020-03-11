@@ -1,8 +1,7 @@
-"""
+'''
 Initialize a basic broadcast slave channel for listening to
 an ANT+ HR monitor.
-
-"""
+'''
 
 import time
 
@@ -19,7 +18,7 @@ node = antnode.Node(stick)
 node.start()
 
 # Set network key
-key = node.NetworkKey('N:ANT+', NETKEY)
+key = antnode.NetworkKey('N:ANT+', NETKEY)
 node.setNetworkKey(0, key)
 
 # Get the first unused channel. Returns an instance of the node.Channel class.

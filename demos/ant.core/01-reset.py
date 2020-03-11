@@ -1,7 +1,4 @@
-"""
-Perform basic node initialization and shutdown cleanly.
-
-"""
+'''Perform basic node initialization and shutdown cleanly. '''
 
 import sys
 import config as antcfg
