@@ -23,8 +23,7 @@
 #
 ##############################################################################
 
-"""Message Module
-"""
+'''Message Module '''
 
 import struct
 
@@ -33,21 +32,18 @@ import ant.core.constants as msgtypes
 
 
 class Message():
-    '''Represents an ANT message as defined in the ANT Message Protocol Specification.
-    '''
-
+    '''Represents an ANT message as defined in the ANT Message Protocol Specification. '''
     def __init__(self, type_=0x00, payload=b''):
-        """Initialises the ANT message with an empty payload.
-        """
+        '''Initialises the ANT message with an empty payload. '''
         self.setType(type_)
         self.setPayload(payload)
 
     def getPayload(self):
-        """Returns the payload associated with the ANT message.
-        """
+        '''Returns the payload associated with the ANT message. '''
         return b''.join(self.payload)
 
     def setPayload(self, payload):
+        '''Sets the payload of the message. '''
         if len(payload) > 9:
             raise antex.MessageError(
                 'Could not set payload (payload too long).')
@@ -55,8 +51,7 @@ class Message():
         self.payload = [b'%c' % i for i in payload]
 
     def getType(self):
-        """Returns the type of ANT message.
-        """
+        '''Returns the type of ANT message. '''
         return self.type_
 
     def setType(self, type_):
@@ -66,8 +61,7 @@ class Message():
         self.type_ = type_
 
     def getChecksum(self):
-        """Computes the checksum for the ANT message.
-        """
+        '''Computes the checksum for the ANT message. '''
         data = bytes([len(self.getPayload())])
         data += bytes([self.getType()])
         data += self.getPayload()
@@ -79,13 +73,11 @@ class Message():
         return checksum
 
     def getSize(self):
-        """Returns the length of the ANT message.
-        """
+        '''Returns the length of the ANT message. '''
         return len(self.getPayload()) + 4
 
     def encode(self):
-        """Returns a byte stream representing the ANT message.
-        """
+        '''Returns a byte stream representing the ANT message. '''
         raw = struct.pack('BBB',
                           msgtypes.MESSAGE_TX_SYNC,
                           len(self.getPayload()),
@@ -96,8 +88,7 @@ class Message():
         return raw
 
     def decode(self, raw):
-        """Decodes a raw sequence of bytes into an ANT message.
-        """
+        '''Decodes a raw sequence of bytes into an ANT message. '''
         if len(raw) < 5:
             raise antex.MessageError('Could not decode (message is incomplete).')
 
@@ -120,8 +111,7 @@ class Message():
         return self.getSize()
 
     def getHandler(self, raw=None):
-        """Returns an typed object based on the raw payload.
-        """
+        '''Returns an typed object based on the raw payload. '''
         if raw:
             self.decode(raw)
 
@@ -179,8 +169,7 @@ class Message():
 
 
 class ChannelMessage(Message):
-    '''Base class representing messages related to an ANT Channel.
-    '''
+    '''Base class representing messages related to an ANT Channel. '''
     def __init__(self, type_, payload=b'', number=0x00):
         Message.__init__(self, type_, b'\x00' + payload)
         self.setChannelNumber(number)
@@ -197,18 +186,14 @@ class ChannelMessage(Message):
 
 # Config messages
 class ChannelUnassignMessage(ChannelMessage):
-    """Configuration: Unassign Channel (0x41)
-    """
-
+    '''Configuration: Unassign Channel (0x41) '''
     def __init__(self, number=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_UNASSIGN,
                                 number=number)
 
 
 class ChannelAssignMessage(ChannelMessage):
-    """Configuration: Assign Channel (0x42)
-    """
-
+    '''Configuration: Assign Channel (0x42) '''
     def __init__(self, number=0x00, type_=0x00, network=0x00):
         payload = struct.pack('BB', type_, network)
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ASSIGN,
@@ -228,9 +213,7 @@ class ChannelAssignMessage(ChannelMessage):
 
 
 class ChannelIDMessage(ChannelMessage):
-    """Configuration: Set Channel ID (0x051)
-    """
-
+    '''Configuration: Set Channel ID (0x051) '''
     def __init__(self, number=0x00, device_number=0x0000, device_type=0x00,
                  trans_type=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ID,
@@ -259,9 +242,7 @@ class ChannelIDMessage(ChannelMessage):
 
 
 class ChannelPeriodMessage(ChannelMessage):
-    """Configuration: Channel Messaging Period (0x43)
-    """
-
+    '''Configuration: Channel Messaging Period (0x43) '''
     def __init__(self, number=0x00, period=8192):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_PERIOD,
                                 payload=b'\x00' * 2, number=number)
@@ -275,9 +256,7 @@ class ChannelPeriodMessage(ChannelMessage):
 
 
 class ChannelSearchTimeoutMessage(ChannelMessage):
-    """Configuration: Channel Search Timeout (0x44)
-    """
-
+    '''Configuration: Channel Search Timeout (0x44) '''
     def __init__(self, number=0x00, timeout=0xFF):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_SEARCH_TIMEOUT,
                                 payload=b'\x00', number=number)
@@ -291,10 +270,7 @@ class ChannelSearchTimeoutMessage(ChannelMessage):
 
 
 class ChannelFrequencyMessage(ChannelMessage):
-    """Configuration: Channel RF Frequency (0x45)
-
-    """
-
+    '''Configuration: Channel RF Frequency (0x45) '''
     def __init__(self, number=0x00, frequency=66):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_FREQUENCY,
                                 payload=b'\x00', number=number)

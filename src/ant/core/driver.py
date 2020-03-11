@@ -41,6 +41,7 @@ import _thread
 
 
 class Driver(ABC):
+    '''The abstract class representing the communication methods to interface with ANT nodes. '''
     _lock = _thread.allocate_lock()
 
     def __init__(self, device, log=None, debug=False):
@@ -51,9 +52,9 @@ class Driver(ABC):
 
     def isOpen(self):
         self._lock.acquire()
-        io = self.is_open
+        is_open = self.is_open
         self._lock.release()
-        return io
+        return is_open
 
     def open(self):
         self._lock.acquire()
@@ -158,9 +159,7 @@ class Driver(ABC):
 
 
 class USB1Driver(Driver):
-    """USB Driver using serial
-    """
-
+    '''USB Driver using serial. '''
     def __init__(self, device, baud_rate=115200, log=None, debug=False):
         Driver.__init__(self, device, log, debug)
         self.baud = baud_rate
@@ -169,8 +168,8 @@ class USB1Driver(Driver):
     def _open(self):
         try:
             dev = serial.Serial(self.device, self.baud)
-        except serial.SerialException as e:
-            raise antex.DriverError(str(e))
+        except serial.SerialException as ex:
+            raise antex.DriverError(str(ex))
 
         if not dev.isOpen():
             raise antex.DriverError('Could not open device')
@@ -195,9 +194,7 @@ class USB1Driver(Driver):
 
 
 class USB2Driver(Driver):
-    """USB Driver using PyUSB
-    """
-
+    '''USB Driver using PyUSB. '''
     def _open(self):
         # Most of this is straight from the PyUSB example documentation
         dev = usb.core.find(idVendor=0x0fcf, idProduct=0x1008)

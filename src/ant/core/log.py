@@ -34,9 +34,7 @@ EVENT_WRITE = 0x04
 
 
 class LogReader():
-    """Log Reader.
-    """
-
+    '''Log Reader. '''
     def __init__(self, filename):
         self.is_open = False
         self.open(filename)
@@ -73,9 +71,7 @@ class LogReader():
 
 
 class LogWriter():
-    """Log Writer.
-    """
-
+    '''Log Writer. '''
     def __init__(self, filename=''):
         self.packer = msgpack.Packer()
         self.is_open = False

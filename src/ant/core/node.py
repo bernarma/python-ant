@@ -37,19 +37,34 @@ import ant.core.event as antevt
 
 
 class NetworkKey():
-    """Network Key (ANT+ Doco)
-    """
-
+    '''Network Key (ANT+ Doco) '''
     def __init__(self, name=None, key=b'\x00' * 8):
-        self.key = key
+        self._key = key
         if name:
-            self.name = name
+            self._name = name
         else:
-            self.name = str(uuid.uuid4())
-        self.number = 0
+            self._name = str(uuid.uuid4())
+        self._number = 0
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def number(self):
+        return self._number
+
+    @number.setter
+    def number(self, number):
+        self._number = number
 
 
 class Channel(antevt.EventCallback):
+    '''A channel is used to connect two nodes together. '''
     cb_lock = _thread.allocate_lock()
 
     def __init__(self, node):
@@ -145,9 +160,7 @@ class Channel(antevt.EventCallback):
 
 
 class Node(antevt.EventCallback):
-    """Node - describe what it is (refer to Ant+ documentation)
-    """
-
+    '''Represents a node in an ANT network. '''
     node_lock = _thread.allocate_lock()
 
     def __init__(self, driver):
@@ -161,8 +174,7 @@ class Node(antevt.EventCallback):
 
     def start(self):
         if self.running:
-            raise antex.NodeError('Could not start ANT node (already '
-                                  'started).')
+            raise antex.NodeError('Could not start ANT node (already started).')
 
         if not self.driver.isOpen():
             self.driver.open()
