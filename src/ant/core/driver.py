@@ -50,7 +50,7 @@ class Driver(ABC):
         self.log = log
         self.is_open = False
 
-    def isOpen(self):
+    def isOpen(self) -> bool:
         self._lock.acquire()
         is_open = self.is_open
         self._lock.release()
@@ -244,3 +244,21 @@ class USB2Driver(Driver):
         count = self._ep_out.write(data)
 
         return count
+
+
+class DriverFactory():
+    '''Factory to create Driver's. '''
+
+    @staticmethod
+    def create(type_, device=None, log=None, debug=False) -> Driver:
+        ''' Create ANT driver based on type specified. '''
+        driver = None
+
+        if type_ == 'USB1':
+            driver = USB1Driver(device, log=log, debug=debug)
+        elif type_ == 'USB2':
+            driver = USB2Driver(None, log=log, debug=debug)
+        else:
+            raise antex.DriverError('Unknown driver type.')
+
+        return driver

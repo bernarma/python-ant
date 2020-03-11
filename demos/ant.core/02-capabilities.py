@@ -5,7 +5,9 @@ import ant.core.node as antnode
 import config as antcfg
 
 # Initialize
-stick = antdrv.USB1Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
+stick = antdrv.DriverFactory.create(antcfg.DRIVER_TYPE, device=antcfg.SERIAL,
+                                    log=antcfg.LOG, debug=antcfg.DEBUG)
+
 antnode = antnode.Node(stick)
 antnode.start()
 

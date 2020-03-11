@@ -5,35 +5,36 @@ incoming data.
 
 import time
 
-from ant.core import driver
-from ant.core import node
-from ant.core import event
-from ant.core import message
-from ant.core.constants import CHANNEL_TYPE_TWOWAY_RECEIVE, TIMEOUT_NEVER
-
+import ant.core.driver as antdrv
+import ant.core.message as antmsg
+import ant.core.event as antevt
+import ant.core.node as antnode
+import ant.core.constants as antc
 import config as antcfg
 
 NETKEY = b'\xB9\xA5\x21\xFB\xBD\x72\xC3\x45'
 
-# A run-the-mill event listener
-class HRMListener(event.EventCallback):
+class HRMListener(antevt.EventCallback):
+    '''Run of the mill event listener. '''
     def process(self, msg):
-        if isinstance(msg, message.ChannelBroadcastDataMessage):
+        if isinstance(msg, antmsg.ChannelBroadcastDataMessage):
             print('Heart Rate:', ord(msg.payload[-1]))
 
 # Initialize
-stick = driver.USB1Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
-antnode = node.Node(stick)
-antnode.start()
+stick = antdrv.DriverFactory.create(antcfg.DRIVER_TYPE, device=antcfg.SERIAL,
+                                    log=antcfg.LOG, debug=antcfg.DEBUG)
+
+node = antnode.Node(stick)
+node.start()
 
 # Setup channel
-key = node.NetworkKey('N:ANT+', NETKEY)
-antnode.setNetworkKey(0, key)
-channel = antnode.getFreeChannel()
+key = antnode.NetworkKey('N:ANT+', NETKEY)
+node.setNetworkKey(0, key)
+channel = node.getFreeChannel()
 channel.name = 'C:HRM'
-channel.assign('N:ANT+', CHANNEL_TYPE_TWOWAY_RECEIVE)
+channel.assign('N:ANT+', antc.CHANNEL_TYPE_TWOWAY_RECEIVE)
 channel.setID(120, 0, 0)
-channel.setSearchTimeout(TIMEOUT_NEVER)
+channel.setSearchTimeout(antc.TIMEOUT_NEVER)
 channel.setPeriod(8070)
 channel.setFrequency(57)
 channel.open()
@@ -50,4 +51,4 @@ time.sleep(120)
 # Shutdown
 channel.close()
 channel.unassign()
-antnode.stop()
+node.stop()

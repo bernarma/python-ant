@@ -13,7 +13,9 @@ import config as antcfg
 NETKEY = b'\xB9\xA5\x21\xFB\xBD\x72\xC3\x45'
 
 # Initialize
-stick = antdrv.USB1Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
+stick = antdrv.DriverFactory.create(antcfg.DRIVER_TYPE, device=antcfg.SERIAL,
+                                    log=antcfg.LOG, debug=antcfg.DEBUG)
+
 node = antnode.Node(stick)
 node.start()
 

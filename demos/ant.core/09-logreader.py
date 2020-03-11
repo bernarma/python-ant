@@ -1,4 +1,4 @@
-'''Read an ANT-LOG file. '''
+'''Read an ANT-LOG file to stdout. '''
 
 import sys
 

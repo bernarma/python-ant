@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-"""Configuration for Demos.
-"""
+'''Configuration for Demos. '''
 
 import ant.core.log as antl
+
+# Type of Driver to use - USB1 or USB2
+DRIVER_TYPE = 'USB2'
 
 # USB1 ANT stick interface. Running `dmesg | tail -n 25` after plugging the
 # stick on a USB port should tell you the exact interface.

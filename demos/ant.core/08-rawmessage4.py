@@ -13,7 +13,7 @@ import ant.core.event as antevt
 import ant.core.message as antmsg
 import config as antcfg
 
-NETKEY = '\xB9\xA5\x21\xFB\xBD\x72\xC3\x45'
+NETKEY = b'\xB9\xA5\x21\xFB\xBD\x72\xC3\x45'
 
 # Event callback
 class MyCallback(antevt.EventCallback):
@@ -24,7 +24,8 @@ class MyCallback(antevt.EventCallback):
             print('Heart Rate:', ord(msg.getPayload()[8]))
 
 # Initialize driver
-stick = antdrv.USB1Driver(antcfg.SERIAL, log=antcfg.LOG) # No debug, too much data
+stick = antdrv.DriverFactory.create(antcfg.DRIVER_TYPE, device=antcfg.SERIAL,
+                                    log=antcfg.LOG, debug=antcfg.DEBUG)
 stick.open()
 
 # Initialize event machine

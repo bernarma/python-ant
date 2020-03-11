@@ -7,7 +7,8 @@ import ant.core.exceptions as antex
 import ant.core.node as antnode
 
 # Initialize and configure our ANT stick's driver
-stick = antdrv.USB1Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
+stick = antdrv.DriverFactory.create(antcfg.DRIVER_TYPE, device=antcfg.SERIAL,
+                                    log=antcfg.LOG, debug=antcfg.DEBUG)
 
 # Now create an ANT node, and pass it our driver so it can talk to the stick
 node = antnode.Node(stick)
