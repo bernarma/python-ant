@@ -25,7 +25,6 @@
 
 import time
 import datetime
-
 import msgpack
 
 EVENT_OPEN = 0x01
@@ -35,6 +34,9 @@ EVENT_WRITE = 0x04
 
 
 class LogReader():
+    """Log Reader.
+    """
+
     def __init__(self, filename):
         self.is_open = False
         self.open(filename)
@@ -51,7 +53,6 @@ class LogReader():
         self.is_open = True
         self.unpacker = msgpack.Unpacker()
 
-        # Here be dragons
         self.unpacker.feed(self.fd.read())
         self.fd.close()
 
@@ -72,6 +73,9 @@ class LogReader():
 
 
 class LogWriter():
+    """Log Writer.
+    """
+
     def __init__(self, filename=''):
         self.packer = msgpack.Packer()
         self.is_open = False

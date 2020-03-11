@@ -4,7 +4,6 @@ incoming data.
 
 """
 
-import sys
 import time
 
 from ant.core import driver

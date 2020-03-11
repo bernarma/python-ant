@@ -32,6 +32,10 @@ class DriverError(ANTException):
     pass
 
 
+class CallbackError(Exception):
+    pass
+
+
 class MessageError(ANTException):
     def __init__(self, msg, internal=''):
         super().__init__(msg)

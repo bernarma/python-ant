@@ -23,6 +23,9 @@
 #
 ##############################################################################
 
+"""Drivers
+"""
+
 from array import array
 from abc import ABC, abstractmethod
 
@@ -57,7 +60,8 @@ class Driver(ABC):
 
         try:
             if self.is_open:
-                raise antex.DriverError("Could not open device (already open).")
+                raise antex.DriverError(
+                    "Could not open device (already open).")
 
             self._open()
             self.is_open = True
@@ -154,9 +158,13 @@ class Driver(ABC):
 
 
 class USB1Driver(Driver):
+    """USB Driver using serial
+    """
+
     def __init__(self, device, baud_rate=115200, log=None, debug=False):
         Driver.__init__(self, device, log, debug)
         self.baud = baud_rate
+        self._serial = None
 
     def _open(self):
         try:
@@ -180,13 +188,16 @@ class USB1Driver(Driver):
         try:
             count = self._serial.write(data)
             self._serial.flush()
-        except serial.SerialTimeoutException as e:
-            raise antex.DriverError(str(e))
+        except serial.SerialTimeoutException as ex:
+            raise antex.DriverError(str(ex))
 
         return count
 
 
 class USB2Driver(Driver):
+    """USB Driver using PyUSB
+    """
+
     def _open(self):
         # Most of this is straight from the PyUSB example documentation
         dev = usb.core.find(idVendor=0x0fcf, idProduct=0x1008)
@@ -204,18 +215,14 @@ class USB2Driver(Driver):
         usb.util.claim_interface(dev, interface_number)
         ep_out = usb.util.find_descriptor(
             intf,
-            custom_match=\
-                lambda e: \
-                    usb.util.endpoint_direction(e.bEndpointAddress) == \
-                    usb.util.ENDPOINT_OUT
+            custom_match=lambda e:
+            usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_OUT
         )
         assert ep_out is not None
         ep_in = usb.util.find_descriptor(
             intf,
-            custom_match=\
-                lambda e: \
-                    usb.util.endpoint_direction(e.bEndpointAddress) == \
-                    usb.util.ENDPOINT_IN
+            custom_match=lambda e:
+            usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_IN
         )
         assert ep_in is not None
         self._ep_out = ep_out

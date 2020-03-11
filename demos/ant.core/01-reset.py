@@ -4,10 +4,10 @@ Perform basic node initialization and shutdown cleanly.
 """
 
 import sys
-
-import ant.core.driver as antdrv
-import ant.core.node as antnode
 import config as antcfg
+import ant.core.driver as antdrv
+import ant.core.exceptions as antex
+import ant.core.node as antnode
 
 # Initialize and configure our ANT stick's driver
 stick = antdrv.USB1Driver(antcfg.SERIAL, log=antcfg.LOG, debug=antcfg.DEBUG)
@@ -19,7 +19,7 @@ node = antnode.Node(stick)
 # send a system reset command to the ANT stick (blocks).
 try:
     node.start()
-except antdrv.DriverError as e:
+except antex.DriverError as e:
     print(e)
     sys.exit()
 

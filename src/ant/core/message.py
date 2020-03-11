@@ -23,6 +23,9 @@
 #
 ##############################################################################
 
+"""Message Module
+"""
+
 import struct
 
 import ant.core.exceptions as antex
@@ -30,11 +33,18 @@ import ant.core.constants as msgtypes
 
 
 class Message():
+    """Represents an ANT message as defined in the ANT Message Protocol Specification.
+    """
+
     def __init__(self, type_=0x00, payload=b''):
+        """Initialises the ANT message with an empty payload.
+        """
         self.setType(type_)
         self.setPayload(payload)
 
     def getPayload(self):
+        """Returns the payload associated with the ANT message.
+        """
         return b''.join(self.payload)
 
     def setPayload(self, payload):
@@ -54,6 +64,8 @@ class Message():
         self.type_ = type_
 
     def getChecksum(self):
+        """Computes the checksum for the ANT message.
+        """
         data = bytes([len(self.getPayload())])
         data += bytes([self.getType()])
         data += self.getPayload()
@@ -65,6 +77,8 @@ class Message():
         return checksum
 
     def getSize(self):
+        """Returns the length of the ANT message.
+        """
         return len(self.getPayload()) + 4
 
     def encode(self):
@@ -166,8 +180,7 @@ class ChannelMessage(Message):
 
     def setChannelNumber(self, number):
         if (number > 0xFF) or (number < 0x00):
-            raise antex.MessageError('Could not set channel number '
-                                     '(out of range).')
+            raise antex.MessageError('Could not set channel number (out of range).')
 
         self.payload[0] = bytes([number])
 
@@ -269,6 +282,7 @@ class ChannelTXPowerMessage(ChannelMessage):
     def __init__(self, number=0x00, power=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_TX_POWER,
                                 payload=b'\x00', number=number)
+        self.setPower(power)
 
     def getPower(self):
         return ord(self.payload[1])
@@ -310,16 +324,25 @@ class TXPowerMessage(Message):
 
 # Control messages
 class SystemResetMessage(Message):
+    """Control Message: Reset System (0x4A)
+    """
+
     def __init__(self):
         Message.__init__(self, type_=msgtypes.MESSAGE_SYSTEM_RESET, payload=b'\x00')
 
 
 class StartupMessage(Message):
+    """Notification: Start-up Message(0x6F)
+    """
+
     def __init__(self):
-        Message.__init__(self, type_=msgtypes.MESSAGE_SYSTEM_RESET, payload=b'\x00')
+        Message.__init__(self, type_=msgtypes.MESSAGE_STARTUP, payload=b'\x00')
 
 
 class ChannelOpenMessage(ChannelMessage):
+    """
+    """
+
     def __init__(self, number=0x00):
         ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_OPEN,
                                 number=number)
@@ -342,8 +365,7 @@ class ChannelRequestMessage(ChannelMessage):
 
     def setMessageID(self, message_id):
         if (message_id > 0xFF) or (message_id < 0x00):
-            raise antex.MessageError('Could not set message ID ' \
-                                   '(out of range).')
+            raise antex.MessageError('Could not set message ID (out of range).')
 
         self.payload[1] = bytes([message_id])
 
@@ -361,7 +383,8 @@ class ChannelBroadcastDataMessage(ChannelMessage):
 
 class ChannelAcknowledgedDataMessage(ChannelMessage):
     def __init__(self, number=0x00, data='\x00' * 7):
-        ChannelMessage.__init__(self, type_=msgtypes.MESSAGE_CHANNEL_ACKNOWLEDGED_DATA,
+        ChannelMessage.__init__(self,
+                                type_=msgtypes.MESSAGE_CHANNEL_ACKNOWLEDGED_DATA,
                                 payload=data, number=number)
 
 
@@ -420,7 +443,8 @@ class ChannelStatusMessage(ChannelMessage):
 
 class VersionMessage(Message):
     def __init__(self, version=b'\x00' * 9):
-        Message.__init__(self, type_=msgtypes.MESSAGE_VERSION, payload=b'\x00' * 9)
+        Message.__init__(self, type_=msgtypes.MESSAGE_VERSION,
+                         payload=b'\x00' * 9)
         self.setVersion(version)
 
     def getVersion(self):
@@ -437,11 +461,14 @@ class VersionMessage(Message):
 class CapabilitiesMessage(Message):
     def __init__(self, max_channels=0x00, max_nets=0x00, std_opts=0x00,
                  adv_opts=0x00, adv_opts2=0x00):
-        Message.__init__(self, type_=msgtypes.MESSAGE_CAPABILITIES, payload=b'\x00' * 4)
+        Message.__init__(self, type_=msgtypes.MESSAGE_CAPABILITIES,
+                         payload=b'\x00' * 4)
+
         self.setMaxChannels(max_channels)
         self.setMaxNetworks(max_nets)
         self.setStdOptions(std_opts)
         self.setAdvOptions(adv_opts)
+
         if adv_opts2 is not None:
             self.setAdvOptions2(adv_opts2)
 

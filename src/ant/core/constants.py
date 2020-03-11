@@ -23,6 +23,9 @@
 #
 ##############################################################################
 
+"""ANT+ Message Types
+"""
+
 MESSAGE_TX_SYNC = 0xA4
 
 # Configuration messages

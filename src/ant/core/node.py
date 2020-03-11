@@ -23,9 +23,12 @@
 #
 ##############################################################################
 
+"""Node Module
+"""
+
 import time
-import _thread
 import uuid
+import _thread
 
 import ant.core.constants as msgtypes
 import ant.core.exceptions as antex
@@ -34,6 +37,9 @@ import ant.core.event as antevt
 
 
 class NetworkKey():
+    """Network Key (ANT+ Doco)
+    """
+
     def __init__(self, name=None, key=b'\x00' * 8):
         self.key = key
         if name:
@@ -51,7 +57,7 @@ class Channel(antevt.EventCallback):
         self.is_free = True
         self.name = str(uuid.uuid4())
         self.number = 0
-        self.cb = []
+        self.callback = []
         self.node.evm.registerCallback(self)
 
     def __del__(self):
@@ -122,23 +128,26 @@ class Channel(antevt.EventCallback):
 
     def registerCallback(self, callback):
         self.cb_lock.acquire()
-        if callback not in self.cb:
-            self.cb.append(callback)
+        if callback not in self.callback:
+            self.callback.append(callback)
         self.cb_lock.release()
 
     def process(self, msg):
         self.cb_lock.acquire()
         if isinstance(msg, antmsg.ChannelMessage) and \
            msg.getChannelNumber() == self.number:
-            for callback in self.cb:
+            for callback in self.callback:
                 try:
                     callback.process(msg)
-                except:
+                except antex.CallbackError:
                     pass  # Who cares?
         self.cb_lock.release()
 
 
 class Node(antevt.EventCallback):
+    """Node - describe what it is (refer to Ant+ documentation)
+    """
+
     node_lock = _thread.allocate_lock()
 
     def __init__(self, driver):
@@ -152,7 +161,8 @@ class Node(antevt.EventCallback):
 
     def start(self):
         if self.running:
-            raise antex.NodeError('Could not start ANT node (already started).')
+            raise antex.NodeError('Could not start ANT node (already '
+                                  'started).')
 
         if not self.driver.isOpen():
             self.driver.open()
@@ -219,7 +229,8 @@ class Node(antevt.EventCallback):
         for netkey in self.networks:
             if netkey.name == name:
                 return netkey
-        raise antex.NodeError('Could not find network key with the supplied name.')
+        raise antex.NodeError('Could not find network key with the '
+                              'supplied name.')
 
     def getFreeChannel(self):
         for channel in self.channels:

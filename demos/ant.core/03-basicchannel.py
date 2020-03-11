@@ -4,7 +4,6 @@ an ANT+ HR monitor.
 
 """
 
-import sys
 import time
 
 import ant.core.driver as antdrv

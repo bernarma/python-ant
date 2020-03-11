@@ -28,8 +28,8 @@
 # don't-fix-it-if-it-ain't-broken kind of threaded code ahead.
 #
 
-import _thread
 import time
+import _thread
 
 import ant.core.message as antmsg
 import ant.core.exceptions as antex
@@ -47,12 +47,13 @@ def ProcessBuffer(buffer_):
             msg = hf.getHandler(buffer_)
             buffer_ = buffer_[len(msg.getPayload()) + 4:]
             messages.append(msg)
-        except antex.MessageError as e:
-            if e.internal == "CHECKSUM":
+        except antex.MessageError as ex:
+            if ex.internal == "CHECKSUM":
                 buffer_ = buffer_[buffer_[1] + 4:]
             else:
                 # any error not related to checksum we should exit
-                # could be incomplete message that has not yet been fully received
+                # could be incomplete message that has not yet been
+                # fully received
                 break
 
     return (buffer_, messages,)
@@ -82,7 +83,7 @@ def EventPump(evm):
             for callback in evm.callbacks:
                 try:
                     callback.process(message)
-                except Exception:
+                except antex.CallbackError:
                     pass
 
         evm.callbacks_lock.release()

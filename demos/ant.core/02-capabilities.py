@@ -3,8 +3,6 @@ Interrogate stick for supported capabilities.
 
 """
 
-import sys
-
 import ant.core.driver as antdrv
 import ant.core.node as antnode
 import config as antcfg

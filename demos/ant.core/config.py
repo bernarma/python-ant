@@ -1,4 +1,9 @@
-from ant.core import log
+# -*- coding: utf-8 -*-
+
+"""Configuration for Demos.
+"""
+
+import ant.core.log as antl
 
 # USB1 ANT stick interface. Running `dmesg | tail -n 25` after plugging the
 # stick on a USB port should tell you the exact interface.
@@ -12,7 +17,7 @@ DEBUG = True
 
 # Set to None to disable logging
 #LOG = None
-LOG = log.LogWriter()
+LOG = antl.LogWriter()
 
 # ========== DO NOT CHANGE ANYTHING BELOW THIS LINE ==========
 print("Using log file:", LOG.filename)
